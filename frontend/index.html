@@ -1,0 +1,397 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>मैं हूँ — Voice RAG · HH Goa 2026</title>
+<link rel="icon" type="image/webp" href="/assets/favicon.webp" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Imbue:opsz,wght@10..100,400;10..100,500;10..100,600;10..100,700;10..100,900&family=Victor+Mono:ital,wght@0,100;0,300;0,400;0,500;0,600;1,300;1,400&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+
+<!-- ============================================================ HERO -->
+<header class="hero" id="top">
+  <div class="hero__bg" aria-hidden="true">
+    <img src="/assets/Sun%20rise.png" alt="" />
+  </div>
+
+  <nav class="nav container">
+    <div class="nav__brand">
+      <img src="/assets/2-47.svg" alt="2:47 pm" class="nav__logo" />
+      <span class="nav__brand--text">HACKER HOUSE<br />GOA</span>
+    </div>
+    <ul class="nav__links">
+      <li><a href="#pipeline">PIPELINE</a></li>
+      <li><a href="#chunking">CHUNKING</a></li>
+      <li><a href="#demo">LIVE&nbsp;DEMO</a></li>
+      <li><a href="#latency">LATENCY</a></li>
+      <li><a href="#faq">FAQ</a></li>
+    </ul>
+  </nav>
+
+  <div class="hero__inner container">
+    <p class="hero__eyebrow">A VOICE-ENABLED RAG PIPELINE · SHORTLISTING TASK 02</p>
+    <h1 class="hero__title">
+      <span class="hero__title--en">ASK IN YOUR<br />OWN VOICE.</span>
+      <img src="/assets/goa_hindi.svg" alt="हिन्दी" class="hero__hindi" />
+    </h1>
+    <p class="hero__lead">
+      Speech-to-text → multi-strategy chunking → hybrid retrieval →
+      grounded answers. Built for MSMARCO-XI, tuned to answer in
+      Hindi &amp; English under 200&nbsp;ms.
+    </p>
+    <div class="hero__cta">
+      <a class="btn btn--zigzag" href="#demo">SPEAK NOW ↓</a>
+      <span class="hero__hint mono">⌁ no api key needed to try</span>
+    </div>
+  </div>
+
+  <img src="/assets/Hacker%20house.png" alt="" class="hero__house" />
+</header>
+
+<!-- ============================================================ MARQUEE -->
+<div class="marquee" aria-hidden="true">
+  <div class="marquee__track">
+    <span>VOICE FIRST</span><i>✳</i>
+    <span>HYBRID RETRIEVAL</span><i>✳</i>
+    <span>FAISS × BM25 × RRF</span><i>✳</i>
+    <span>HINDI + ENGLISH</span><i>✳</i>
+    <span>GROUNDED ANSWERS</span><i>✳</i>
+    <span>P70 &lt; 200MS</span><i>✳</i>
+    <span>VOICE FIRST</span><i>✳</i>
+    <span>HYBRID RETRIEVAL</span><i>✳</i>
+    <span>FAISS × BM25 × RRF</span><i>✳</i>
+    <span>HINDI + ENGLISH</span><i>✳</i>
+    <span>GROUNDED ANSWERS</span><i>✳</i>
+    <span>P70 &lt; 200MS</span><i>✳</i>
+  </div>
+</div>
+
+<!-- ============================================================ PIPELINE -->
+<section class="pipeline section" id="pipeline">
+  <div class="container">
+    <div class="section__head reveal">
+      <p class="mono section__tag">01 · THE ENGINE</p>
+      <h2 class="section__title">FOUR STAGES.<br />ONE RHYTHM.</h2>
+      <p class="section__sub">
+        Every question walks the same wire — each stage measured, traced and
+        streamed back to you in real time.
+      </p>
+    </div>
+
+    <div class="pipeline__grid">
+      <div class="card card--chevron reveal" style="--d:.0s">
+        <div class="card__num mono">01</div>
+        <h3 class="card__title">LISTEN</h3>
+        <p class="card__body">
+          Audio is transcribed by <b>Sarvam saaras:v3</b> — with ElevenLabs and
+          Groq Whisper as drop-in providers.
+        </p>
+        <ul class="card__tags mono">
+          <li>WAV</li><li>MP3</li><li>WEBM</li><li>M4A</li>
+        </ul>
+      </div>
+
+      <div class="card card--chevron reveal" style="--d:.08s">
+        <div class="card__num mono">02</div>
+        <h3 class="card__title">SPLIT</h3>
+        <p class="card__body">
+          Passages are cut with <b>four strategies at once</b> — fixed-window,
+          sentence, semantic and metadata units.
+        </p>
+        <ul class="card__tags mono">
+          <li>FIXED</li><li>SENTENCE</li><li>SEMANTIC</li><li>META</li>
+        </ul>
+      </div>
+
+      <div class="card card--chevron reveal" style="--d:.16s">
+        <div class="card__num mono">03</div>
+        <h3 class="card__title">RETRIEVE</h3>
+        <p class="card__body">
+          FAISS cosine meets BM25 in a reciprocal-rank fusion — then metadata
+          re-ranks. No server. No API.
+        </p>
+        <ul class="card__tags mono">
+          <li>FAISS</li><li>BM25</li><li>RRF</li><li>RERANK</li>
+        </ul>
+      </div>
+
+      <div class="card card--chevron reveal" style="--d:.24s">
+        <div class="card__num mono">04</div>
+        <h3 class="card__title">ANSWER</h3>
+        <p class="card__body">
+          A grounded LLM answers in the question's language — verified against
+          sources before it ever reaches you.
+        </p>
+        <ul class="card__tags mono">
+          <li>LLM</li><li>EXTRACTIVE</li><li>VERIFY</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ CHUNKING -->
+<section class="chunking section" id="chunking">
+  <div class="zigzag-top" aria-hidden="true"><img src="/assets/002-group-54-14.svg" alt="" /></div>
+  <div class="container">
+    <div class="section__head section__head--light reveal">
+      <p class="mono section__tag">02 · THE SPLIT</p>
+      <h2 class="section__title">CHUNK IT FOUR WAYS.</h2>
+      <p class="section__sub">
+        One corpus, four views. Retrieval fuses them instead of betting on a
+        single naive fixed-size split.
+      </p>
+    </div>
+
+    <div class="chunking__grid">
+      <article class="strategy reveal" style="--d:.0s">
+        <span class="strategy__icon mono">⬚</span>
+        <h4 class="mono strategy__name">FIXED_OVERLAP</h4>
+        <p class="strategy__body">
+          Sliding window of 320 chars with 64 overlap — catches phrasing that
+          straddles boundaries.
+        </p>
+        <span class="strategy__meta mono" data-strategy="fixed_overlap">–</span>
+      </article>
+
+      <article class="strategy reveal" style="--d:.07s">
+        <span class="strategy__icon mono">§</span>
+        <h4 class="mono strategy__name">SENTENCE</h4>
+        <p class="strategy__body">
+          Linguistically clean windows of 4 sentences each, split on
+          <span class="mono">।</span> and <span class="mono">.!?</span>.
+        </p>
+        <span class="strategy__meta mono" data-strategy="sentence">–</span>
+      </article>
+
+      <article class="strategy reveal" style="--d:.14s">
+        <span class="strategy__icon mono">≋</span>
+        <h4 class="mono strategy__name">SEMANTIC</h4>
+        <p class="strategy__body">
+          Sentence embeddings merge neighbours until they drift — groups keep
+          one coherent idea.
+        </p>
+        <span class="strategy__meta mono" data-strategy="semantic">–</span>
+      </article>
+
+      <article class="strategy reveal" style="--d:.21s">
+        <span class="strategy__icon mono">☷</span>
+        <h4 class="mono strategy__name">METADATA</h4>
+        <p class="strategy__body">
+          Title + context units answer their own question — the retrieval
+          equivalent of a well-tagged book.
+        </p>
+        <span class="strategy__meta mono" data-strategy="metadata">–</span>
+      </article>
+    </div>
+  </div>
+  <div class="zigzag-bottom" aria-hidden="true"><img src="/assets/008-group-54-324.svg" alt="" /></div>
+</section>
+
+<!-- ============================================================ GUARDRAILS -->
+<section class="guard section" id="guardrails">
+  <div class="container">
+    <div class="section__head reveal">
+      <p class="mono section__tag">03 · THE VETO</p>
+      <h2 class="section__title">KNOWS WHEN<br />TO STAY SILENT.</h2>
+    </div>
+    <div class="guard__list">
+      <div class="guard__row reveal" style="--d:.0s">
+        <span class="guard__check mono">✕</span>
+        <p><b>Unsafe language</b> — EN + HI blocklists, folded for devanagari.</p>
+      </div>
+      <div class="guard__row reveal" style="--d:.05s">
+        <span class="guard__check mono">✕</span>
+        <p><b>Prompt injection</b> — "ignore your instructions" and jailbreak patterns.</p>
+      </div>
+      <div class="guard__row reveal" style="--d:.1s">
+        <span class="guard__check mono">✕</span>
+        <p><b>Off-topic</b> — retrieval confidence gate blends cosine + lexical overlap.</p>
+      </div>
+      <div class="guard__row reveal" style="--d:.15s">
+        <span class="guard__check mono">✕</span>
+        <p><b>Hallucination</b> — the answer must be grounded in retrieved sources.</p>
+      </div>
+      <div class="guard__row reveal" style="--d:.2s">
+        <span class="guard__check mono">✓</span>
+        <p><b>Graceful degradation</b> — LLM down? It answers extractively, never 500s.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ LIVE DEMO -->
+<section class="demo section" id="demo">
+  <div class="zigzag-top" aria-hidden="true"><img src="/assets/155-group-54-27661.svg" alt="" /></div>
+  <div class="container">
+    <div class="section__head section__head--light reveal">
+      <p class="mono section__tag">04 · TRY IT</p>
+      <h2 class="section__title">SPEAK. OR TYPE.<br />WATCH THE WIRE.</h2>
+    </div>
+
+    <div class="demo__board reveal">
+      <div class="demo__input">
+        <button id="micBtn" class="btn btn--zigzag btn--zigzag--pink" type="button">
+          <span class="mic-glyph">●</span> HOLD &amp; SPEAK
+        </button>
+        <div class="demo__or mono">/ OR TYPE ↓</div>
+        <form id="askForm" class="demo__form">
+          <input id="askInput" type="text" autocomplete="off"
+                 placeholder="मेनहट्टन प्रोजेक्ट की सफलता का तात्कालिक प्रभाव क्या था?" />
+          <button class="btn btn--solid" type="submit">ASK →</button>
+        </form>
+        <div class="demo__chips mono">
+          <button data-q="मेनहट्टन प्रोजेक्ट की सफलता का तात्कालिक प्रभाव क्या था?">मेनहट्टन प्रोजेक्ट?</button>
+          <button data-q="What is the capital of Australia?">AUSTRALIA?</button>
+          <button data-q="सौरमंडल का सबसे बड़ा ग्रह कौन सा है?">बड़ा ग्रह?</button>
+          <button data-q="अभी मौसम कैसा है?">मौसम? (refuse)</button>
+        </div>
+      </div>
+
+      <div class="demo__stage" id="stageArea">
+        <div class="stage__scroller">
+          <div class="stage__line stage__line--idle" data-stage-line="guard">guard</div>
+          <div class="stage__line" data-stage-line="embed">embed</div>
+          <div class="stage__line" data-stage-line="retrieve">retrieve</div>
+          <div class="stage__line" data-stage-line="gate">gate</div>
+          <div class="stage__line" data-stage-line="generate">generate</div>
+          <div class="stage__line" data-stage-line="verify">verify</div>
+        </div>
+      </div>
+
+      <div class="demo__out">
+        <div id="sttBadge" class="mono stt-badge">—</div>
+        <div id="answer" class="answer mono">
+          <span class="answer__cursor"></span>
+        </div>
+        <div id="meta" class="demo__meta mono">—</div>
+      </div>
+
+      <div class="demo__sources" id="sources"></div>
+      <div id="status" class="mono demo__status">press the button, or type a question above</div>
+    </div>
+  </div>
+  <div class="zigzag-bottom" aria-hidden="true"><img src="/assets/149-group-54-27351.svg" alt="" /></div>
+</section>
+
+<!-- ============================================================ LATENCY -->
+<section class="latency section" id="latency">
+  <div class="container">
+    <div class="section__head reveal">
+      <p class="mono section__tag">05 · THE NUMBERS</p>
+      <h2 class="section__title">P50 · P70 · P100.<br />UNDER 200MS.</h2>
+      <p class="section__sub">
+        Rolling percentiles across every real request — not a cherry-picked
+        best case.
+      </p>
+    </div>
+
+    <div class="latency__row">
+      <div class="latency__card latency__card--big reveal" style="--d:.0s">
+        <p class="mono latency__label">P50 — TYPICAL</p>
+        <p class="latency__value" id="mP50">–</p>
+      </div>
+      <div class="latency__card reveal" style="--d:.08s">
+        <p class="mono latency__label">P70</p>
+        <p class="latency__value" id="mP70">–</p>
+      </div>
+      <div class="latency__card reveal" style="--d:.16s">
+        <p class="mono latency__label">P100 — WORST</p>
+        <p class="latency__value" id="mP100">–</p>
+      </div>
+      <div class="latency__card latency__card--dark reveal" style="--d:.24s">
+        <p class="mono latency__label">REQUESTS</p>
+        <p class="latency__value" id="mN">–</p>
+      </div>
+    </div>
+
+    <div class="latency__bars" id="stageBars"></div>
+  </div>
+</section>
+
+<!-- ============================================================ FAQ -->
+<section class="faq section" id="faq">
+  <div class="zigzag-top" aria-hidden="true"><img src="/assets/002-group-54-14.svg" alt="" /></div>
+  <div class="container">
+    <div class="section__head section__head--light reveal">
+      <p class="mono section__tag">06 · FAQ</p>
+      <h2 class="section__title">WHYS &amp; WHEREFORES.</h2>
+    </div>
+
+    <div class="faq__list">
+      <details class="faq__item reveal" style="--d:.0s">
+        <summary><span>What is this?</span><span class="mono">+</span></summary>
+        <p>
+          A voice-enabled RAG pipeline for the HH Goa 2026 shortlisting task.
+          It transcribes speech, retrieves from an MSMARCO-XI mirror corpus
+          using hybrid FAISS + BM25 retrieval, and answers with grounded
+          generation — in Hindi or English.
+        </p>
+      </details>
+      <details class="faq__item reveal" style="--d:.05s">
+        <summary><span>Which dataset?</span><span class="mono">+</span></summary>
+        <p>
+          <span class="mono">ai4bharat/MSMARCO-XI</span>. The bundled demo index
+          runs on a curated mirror so it boots instantly and works offline;
+          set <span class="mono">HHGOA_USE_REAL=1</span> to build from the real
+          streamed corpus.
+        </p>
+      </details>
+      <details class="faq__item reveal" style="--d:.1s">
+        <summary><span>Which STT provider?</span><span class="mono">+</span></summary>
+        <p>
+          <span class="mono">Sarvam saaras:v3</span> by default, with ElevenLabs
+          <span class="mono">scribe_v2</span> and Groq Whisper as alternates via
+          <span class="mono">HHGOA_STT_PROVIDER</span>.
+        </p>
+      </details>
+      <details class="faq__item reveal" style="--d:.15s">
+        <summary><span>Why four chunking strategies?</span><span class="mono">+</span></summary>
+        <p>
+          Naive fixed-size chunks break meaning. Fixed-overlap covers phrasing
+          drift, sentence windows stay linguistically clean, semantic chunks
+          keep one idea per unit, and metadata chunks self-describe — fusion
+          benefits from all four.
+        </p>
+      </details>
+      <details class="faq__item reveal" style="--d:.2s">
+        <summary><span>How do you hit 200ms?</span><span class="mono">+</span></summary>
+        <p>
+          Everything runs locally — fastembed ONNX, FAISS + BM25 in-process, no
+          vector-server round trips — with pre-warmed models, and an extractive
+          fallback that skips the LLM entirely when no key is set.
+        </p>
+      </details>
+    </div>
+  </div>
+  <div class="zigzag-bottom" aria-hidden="true"><img src="/assets/008-group-54-324.svg" alt="" /></div>
+</section>
+
+<!-- ============================================================ FOOTER -->
+<footer class="footer">
+  <div class="footer__trees" aria-hidden="true">
+    <img src="/assets/footer%20trees.png" alt="" />
+  </div>
+  <div class="footer__inner container">
+    <p class="footer__big">ASK IN YOUR OWN VOICE.</p>
+    <div class="footer__row">
+      <p class="mono footer__credit">BUILT FOR <a href="https://hhgoa.com" target="_blank" rel="noopener">HACKER HOUSE GOA 2026</a> · SHORTLISTING TASK 02</p>
+      <div class="footer__social">
+        <a href="https://www.instagram.com" target="_blank" rel="noopener" aria-label="instagram"><img src="/assets/180-frame-19-43-54-56.svg" alt="IG" /></a>
+        <a href="https://x.com" target="_blank" rel="noopener" aria-label="x"><img src="/assets/181-frame-19-43-54-56.svg" alt="X" /></a>
+        <a href="https://www.linkedin.com" target="_blank" rel="noopener" aria-label="linkedin"><img src="/assets/182-frame-19-43-54-56.svg" alt="IN" /></a>
+      </div>
+    </div>
+    <p class="mono footer__note">
+      DESIGN LANGUAGE INSPIRED BY HH GOA. ASSETS © HH GOA / 2:47 PM STUDIO — USED FOR THIS SUBMISSION DEMO.
+    </p>
+  </div>
+</footer>
+
+<script src="/app.js"></script>
+</body>
+</html>
