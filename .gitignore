@@ -1,0 +1,18 @@
+# Python
+.venv/
+venv/
+__pycache__/
+*.pyc
+*.pyo
+
+# Env / secrets
+.env
+.env.local
+
+# Dataset artifacts (large)
+data/*.parquet
+data/raw/
+
+# OS
+Thumbs.db
+.DS_Store
