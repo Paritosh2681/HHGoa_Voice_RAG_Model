@@ -18,16 +18,48 @@
   );
   document.querySelectorAll(".reveal").forEach((el) => io.observe(el));
 
+  /* ---------------- animated counters ---------------- */
+  function fmtInt(n) {
+    return Number(n || 0).toLocaleString("en-IN");
+  }
+  function countTo(el, target, suffix) {
+    if (!el) return;
+    const from = parseFloat(el.dataset.val || "0") || 0;
+    const to = parseFloat(target) || 0;
+    const suf = suffix || "";
+    if (el.dataset.val === String(to) && to !== 0) return;
+    el.dataset.val = String(to);
+    const t0 = performance.now();
+    const dur = 700;
+    (function tick(now) {
+      const p = Math.min(1, (now - t0) / dur);
+      const eased = 1 - Math.pow(1 - p, 3);
+      const v = from + (to - from) * eased;
+      el.textContent =
+        (to >= 10000 ? Math.round(v) : Math.round(v * 10) / 10) + suf;
+      if (p < 1) requestAnimationFrame(tick);
+    })(t0);
+  }
+  function pulse(el) {
+    if (!el) return;
+    el.classList.remove("pulse-flash");
+    void el.offsetWidth;
+    el.classList.add("pulse-flash");
+  }
+
   /* ---------------- index info -> strategy counts ---------------- */
   async function loadIndexInfo() {
     try {
       const r = await fetch("/api/index-info");
       const info = await r.json();
       const st = info.strategies || {};
+      let total = 0;
       document.querySelectorAll("[data-strategy]").forEach((el) => {
         const key = el.dataset.strategy;
+        if (key in st) total += Number(st[key]) || 0;
         el.textContent = key in st ? st[key] + " chunks" : "–";
       });
+      countTo($("#sChunks"), total);
     } catch (_) {}
   }
 
@@ -38,10 +70,16 @@
       const r = await fetch("/api/metrics");
       const m = await r.json();
       const f = (ms) => (typeof ms === "number" ? ms.toFixed(1) + " ms" : "–");
-      $("#mP50").textContent = f(m.p50_ms);
-      $("#mP70").textContent = f(m.p70_ms);
-      $("#mP100").textContent = f(m.p100_ms);
-      $("#mN").textContent = m.total_requests ?? "–";
+      countTo($("#sRequests"), m.total_requests);
+      countTo($("#mP50"), m.p50_ms, " ms");
+      countTo($("#mP70"), m.p70_ms, " ms");
+      countTo($("#mP100"), m.p100_ms, " ms");
+      countTo($("#mN"), m.total_requests);
+      $("#sP70").textContent =
+        typeof m.p70_ms === "number"
+          ? m.p70_ms.toFixed(0) + " ms"
+          : "–";
+      pulse($("#sP70"));
       const stages = m.by_stage || {};
       const box = $("#stageBars");
       const maxP = Math.max(
@@ -324,6 +362,27 @@
     } catch (e) {
       setStatus("voice network error: " + e.message, true);
     }
+  }
+
+  /* ---------------- wire equalizer ---------------- */
+  (function buildWire() {
+    const box = document.querySelector(".wire__bars");
+    if (!box) return;
+    const N = 64;
+    for (let i = 0; i < N; i++) {
+      const b = document.createElement("span");
+      b.className = "eq-bar";
+      b.style.height = (20 + Math.random() * 80).toFixed(0) + "%";
+      b.style.animationDelay = (Math.random() * 1.1).toFixed(2) + "s";
+      b.style.animationDuration = (0.6 + Math.random() * 0.9).toFixed(2) + "s";
+      box.appendChild(b);
+    }
+  })();
+  const wireToggle = $("#wireToggle");
+  if (wireToggle) {
+    wireToggle.addEventListener("click", () => {
+      document.querySelector(".wire")?.classList.toggle("is-muted");
+    });
   }
 
   /* ---------------- kickoff ---------------- */
