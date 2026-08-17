@@ -145,6 +145,8 @@ async def stt(file: UploadFile = File(...)):
         result = await transcribe(data, file.filename or "audio.webm")
     except RuntimeError as exc:
         raise HTTPException(400, str(exc))
+    except Exception as exc:
+        raise HTTPException(502, f"STT provider error: {exc}")
     return result.model_dump()
 
 
@@ -157,9 +159,9 @@ async def voice_stream(file: UploadFile = File(...), strategy: Optional[str] = Q
         raise HTTPException(400, "empty audio")
     try:
         stt_result = await transcribe(data, file.filename or "audio.webm")
-    except RuntimeError as exc:
+    except Exception as exc:
         return StreamingResponse(
-            StreamEvent("error", {"message": f"STT not configured: {exc}"}).to_sse(),
+            StreamEvent("error", {"message": f"Speech-to-text failed: {exc}"}).to_sse(),
             media_type="text/event-stream")
     if not stt_result.transcript.strip():
         return StreamingResponse(

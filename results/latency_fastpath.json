@@ -1,0 +1,528 @@
+{
+  "summary": {
+    "total_requests": 20,
+    "p50_ms": 26.76,
+    "p70_ms": 35.61,
+    "p100_ms": 975.8326999999554,
+    "mean_ms": 101.95,
+    "by_stage": {
+      "guard": {
+        "p50_ms": 0.11,
+        "p70_ms": 0.14,
+        "p100_ms": 1.3963000001240289,
+        "n": 20.0
+      },
+      "embed": {
+        "p50_ms": 9.94,
+        "p70_ms": 10.43,
+        "p100_ms": 12.990000000172586,
+        "n": 20.0
+      },
+      "retrieve": {
+        "p50_ms": 1.04,
+        "p70_ms": 1.27,
+        "p100_ms": 1.8071999993480858,
+        "n": 20.0
+      },
+      "gate": {
+        "p50_ms": 0.07,
+        "p70_ms": 0.08,
+        "p100_ms": 0.10060000022349413,
+        "n": 20.0
+      },
+      "generate": {
+        "p50_ms": 0.0,
+        "p70_ms": 0.0,
+        "p100_ms": 680.9763999999632,
+        "n": 20.0
+      },
+      "verify": {
+        "p50_ms": 12.63,
+        "p70_ms": 18.08,
+        "p100_ms": 30.540799999471346,
+        "n": 20.0
+      },
+      "total": {
+        "p50_ms": 26.56,
+        "p70_ms": 35.42,
+        "p100_ms": 707.39,
+        "n": 20.0
+      }
+    },
+    "mode_counts": {
+      "llm": 2,
+      "extractive": 18
+    },
+    "recent": [
+      {
+        "request_id": "hhg-0a5debc356",
+        "total_ms": 27.41879999939556,
+        "stages": {
+          "guard": 0.1250000004802132,
+          "embed": 8.96649999958754,
+          "retrieve": 0.9872999999060994,
+          "gate": 0.0807999995231512,
+          "generate": 0.004000000444648322,
+          "verify": 17.058299999916926,
+          "total": 27.22
+        },
+        "mode": "extractive",
+        "grounded": true,
+        "created_at": "2026-08-17T16:12:24.430Z"
+      },
+      {
+        "request_id": "hhg-430f43c7b8",
+        "total_ms": 38.611199999650125,
+        "stages": {
+          "guard": 0.10649999967426993,
+          "embed": 9.81119999960356,
+          "retrieve": 0.7218999999167863,
+          "gate": 0.05109999983687885,
+          "generate": 0.0029000002541579306,
+          "verify": 27.67189999940456,
+          "total": 38.37
+        },
+        "mode": "extractive",
+        "grounded": true,
+        "created_at": "2026-08-17T16:12:24.469Z"
+      },
+      {
+        "request_id": "hhg-23c63299e6",
+        "total_ms": 23.033200000099896,
+        "stages": {
+          "guard": 0.216500000533415,
+          "embed": 10.331200000109675,
+          "retrieve": 1.185799999802839,
+          "gate": 0.05529999998543644,
+          "generate": 0.0029000002541579306,
+          "verify": 11.021299999811163,
+          "total": 22.81
+        },
+        "mode": "extractive",
+        "grounded": true,
+        "created_at": "2026-08-17T16:12:24.492Z"
+      },
+      {
+        "request_id": "hhg-5a5d5a1388",
+        "total_ms": 21.24569999978121,
+        "stages": {
+          "guard": 0.10909999946306925,
+          "embed": 9.981000000152562,
+          "retrieve": 1.629999999749998,
+          "gate": 0.07339999956457177,
+          "generate": 0.004300000000512227,
+          "verify": 9.258400000362599,
+          "total": 21.06
+        },
+        "mode": "extractive",
+        "grounded": true,
+        "created_at": "2026-08-17T16:12:24.513Z"
+      },
+      {
+        "request_id": "hhg-766298b2c5",
+        "total_ms": 22.036100000150327,
+        "stages": {
+          "guard": 0.10699999984353781,
+          "embed": 10.659800000212272,
+          "retrieve": 0.8083000002443441,
+          "gate": 0.03820000074483687,
+          "generate": 0.0024000000848900527,
+          "verify": 10.200299999269191,
+          "total": 21.82
+        },
+        "mode": "extractive",
+        "grounded": true,
+        "created_at": "2026-08-17T16:12:24.535Z"
+      },
+      {
+        "request_id": "hhg-e3642a00e5",
+        "total_ms": 26.091400000041176,
+        "stages": {
+          "guard": 0.30849999984639,
+          "embed": 9.356100000331935,
+          "retrieve": 1.2882999999419553,
+          "gate": 0.09479999971517827,
+          "generate": 0.0037999998312443495,
+          "verify": 14.858700000331737,
+          "total": 25.91
+        },
+        "mode": "extractive",
+        "grounded": true,
+        "created_at": "2026-08-17T16:12:24.561Z"
+      },
+      {
+        "request_id": "hhg-c8eede83d6",
+        "total_ms": 24.305299999468843,
+        "stages": {
+          "guard": 0.08820000039122533,
+          "embed": 10.250700000142388,
+          "retrieve": 0.9606000003259396,
+          "gate": 0.04650000028050272,
+          "generate": 0.003100000867561903,
+          "verify": 12.64530000025843,
+          "total": 23.99
+        },
+        "mode": "extractive",
+        "grounded": true,
+        "created_at": "2026-08-17T16:12:24.585Z"
+      },
+      {
+        "request_id": "hhg-5b381b4a69",
+        "total_ms": 22.92539999962173,
+        "stages": {
+          "guard": 0.14509999982692534,
+          "embed": 8.926900000005844,
+          "retrieve": 0.9615000008125207,
+          "gate": 0.058200000239594374,
+          "generate": 0.0028000004022032954,
+          "verify": 12.616199999683886,
+          "total": 22.71
+        },
+        "mode": "extractive",
+        "grounded": true,
+        "created_at": "2026-08-17T16:12:24.609Z"
+      },
+      {
+        "request_id": "hhg-ada2d1a4d2",
+        "total_ms": 28.905300000587886,
+        "stages": {
+          "guard": 0.09210000007442432,
+          "embed": 9.176399999887508,
+          "retrieve": 1.600499999767635,
+          "gate": 0.096000000667118,
+          "generate": 0.00419999923906289,
+          "verify": 17.76179999978922,
+          "total": 28.73
+        },
+        "mode": "extractive",
+        "grounded": true,
+        "created_at": "2026-08-17T16:12:24.638Z"
+      },
+      {
+        "request_id": "hhg-7a18fdedfc",
+        "total_ms": 34.32689999954164,
+        "stages": {
+          "guard": 0.08230000003095483,
+          "embed": 7.889299999987998,
+          "retrieve": 0.8895000000848086,
+          "gate": 0.052600000344682485,
+          "generate": 0.002600000698294025,
+          "verify": 25.248100000681006,
+          "total": 34.16
+        },
+        "mode": "extractive",
+        "grounded": true,
+        "created_at": "2026-08-17T16:12:24.672Z"
+      }
+    ],
+    "target_ms": 200.0,
+    "under_target": 90.0
+  },
+  "results": [
+    {
+      "query": "मेनहट्टन प्रोजेक्ट की सफलता का तात्कालिक प्रभाव क्या था?",
+      "total_ms": 975.83,
+      "mode": "llm",
+      "grounded": false,
+      "stages": {
+        "guard": 1.3963000001240289,
+        "embed": 12.990000000172586,
+        "retrieve": 1.1217999999644235,
+        "gate": 0.09439999939786503,
+        "generate": 680.9763999999632,
+        "verify": 10.814299999765353,
+        "total": 707.39
+      }
+    },
+    {
+      "query": "एक्वेरियम में मछलियों की देखभाल कैसे करें?",
+      "total_ms": 23.33,
+      "mode": "extractive",
+      "grounded": true,
+      "stages": {
+        "guard": 0.09560000034980476,
+        "embed": 9.90179999917018,
+        "retrieve": 1.5626999993401114,
+        "gate": 0.10060000022349413,
+        "generate": 0.008200000593205914,
+        "verify": 11.42230000004929,
+        "total": 23.09
+      }
+    },
+    {
+      "query": "What is the capital of Australia?",
+      "total_ms": 22.4,
+      "mode": "extractive",
+      "grounded": true,
+      "stages": {
+        "guard": 0.1067000002876739,
+        "embed": 10.7679000002463,
+        "retrieve": 0.9587999993527774,
+        "gate": 0.07900000036897836,
+        "generate": 0.003000000106112566,
+        "verify": 10.182500000155414,
+        "total": 22.1
+      }
+    },
+    {
+      "query": "प्रकाश संश्लेषण क्या है?",
+      "total_ms": 543.84,
+      "mode": "llm",
+      "grounded": true,
+      "stages": {
+        "guard": 0.17459999980928842,
+        "embed": 8.770999999796913,
+        "retrieve": 0.7603999993079924,
+        "gate": 0.06289999964792514,
+        "generate": 524.8437000000195,
+        "verify": 9.039300000040384,
+        "total": 543.65
+      }
+    },
+    {
+      "query": "What is the boiling point of water?",
+      "total_ms": 24.73,
+      "mode": "extractive",
+      "grounded": true,
+      "stages": {
+        "guard": 0.08230000003095483,
+        "embed": 11.446900000009919,
+        "retrieve": 1.1010999996869941,
+        "gate": 0.062200000684242696,
+        "generate": 0.0036999999792897142,
+        "verify": 11.857600000439561,
+        "total": 24.55
+      }
+    },
+    {
+      "query": "हिंदी भाषा किस लिपि में लिखी जाती है?",
+      "total_ms": 22.37,
+      "mode": "extractive",
+      "grounded": true,
+      "stages": {
+        "guard": 0.13800000033370452,
+        "embed": 9.514899999885529,
+        "retrieve": 1.8071999993480858,
+        "gate": 0.07889999960752903,
+        "generate": 0.004799999260285404,
+        "verify": 10.632700000314799,
+        "total": 22.18
+      }
+    },
+    {
+      "query": "माउंट एवरेस्ट की ऊँचाई कितनी है?",
+      "total_ms": 31.46,
+      "mode": "extractive",
+      "grounded": true,
+      "stages": {
+        "guard": 0.0928999997995561,
+        "embed": 11.305699999866192,
+        "retrieve": 0.9777000004760339,
+        "gate": 0.08789999992586672,
+        "generate": 0.004399999852466863,
+        "verify": 18.80659999915224,
+        "total": 31.28
+      }
+    },
+    {
+      "query": "सौरमंडल का सबसे बड़ा ग्रह कौन सा है?",
+      "total_ms": 42.73,
+      "mode": "extractive",
+      "grounded": true,
+      "stages": {
+        "guard": 0.11099999937869143,
+        "embed": 11.002099999132042,
+        "retrieve": 1.2643000000025495,
+        "gate": 0.06889999986015027,
+        "generate": 0.003600000127335079,
+        "verify": 30.037199999242148,
+        "total": 42.49
+      }
+    },
+    {
+      "query": "हीमोग्लोबिन का कार्य क्या है?",
+      "total_ms": 40.67,
+      "mode": "extractive",
+      "grounded": true,
+      "stages": {
+        "guard": 0.20399999993969686,
+        "embed": 9.199199999784469,
+        "retrieve": 0.7733000002190238,
+        "gate": 0.06070000017643906,
+        "generate": 0.004099999387108255,
+        "verify": 30.20139999989624,
+        "total": 40.44
+      }
+    },
+    {
+      "query": "ओजोन परत क्यों महत्वपूर्ण है?",
+      "total_ms": 42.73,
+      "mode": "extractive",
+      "grounded": true,
+      "stages": {
+        "guard": 0.1430000002073939,
+        "embed": 10.049000000435626,
+        "retrieve": 1.4883000003464986,
+        "gate": 0.06120000034570694,
+        "generate": 0.0038999996831989847,
+        "verify": 30.540799999471346,
+        "total": 42.29
+      }
+    },
+    {
+      "query": "What is RAM in a computer?",
+      "total_ms": 27.42,
+      "mode": "extractive",
+      "grounded": true,
+      "stages": {
+        "guard": 0.1250000004802132,
+        "embed": 8.96649999958754,
+        "retrieve": 0.9872999999060994,
+        "gate": 0.0807999995231512,
+        "generate": 0.004000000444648322,
+        "verify": 17.058299999916926,
+        "total": 27.22
+      }
+    },
+    {
+      "query": "गांधीजी का जन्म कब हुआ था?",
+      "total_ms": 38.61,
+      "mode": "extractive",
+      "grounded": true,
+      "stages": {
+        "guard": 0.10649999967426993,
+        "embed": 9.81119999960356,
+        "retrieve": 0.7218999999167863,
+        "gate": 0.05109999983687885,
+        "generate": 0.0029000002541579306,
+        "verify": 27.67189999940456,
+        "total": 38.37
+      }
+    },
+    {
+      "query": "पानी का रासायनिक सूत्र क्या है?",
+      "total_ms": 23.03,
+      "mode": "extractive",
+      "grounded": true,
+      "stages": {
+        "guard": 0.216500000533415,
+        "embed": 10.331200000109675,
+        "retrieve": 1.185799999802839,
+        "gate": 0.05529999998543644,
+        "generate": 0.0029000002541579306,
+        "verify": 11.021299999811163,
+        "total": 22.81
+      }
+    },
+    {
+      "query": "भारत का राष्ट्रीय पक्षी कौन सा है?",
+      "total_ms": 21.25,
+      "mode": "extractive",
+      "grounded": true,
+      "stages": {
+        "guard": 0.10909999946306925,
+        "embed": 9.981000000152562,
+        "retrieve": 1.629999999749998,
+        "gate": 0.07339999956457177,
+        "generate": 0.004300000000512227,
+        "verify": 9.258400000362599,
+        "total": 21.06
+      }
+    },
+    {
+      "query": "What is the largest ocean in the world?",
+      "total_ms": 22.04,
+      "mode": "extractive",
+      "grounded": true,
+      "stages": {
+        "guard": 0.10699999984353781,
+        "embed": 10.659800000212272,
+        "retrieve": 0.8083000002443441,
+        "gate": 0.03820000074483687,
+        "generate": 0.0024000000848900527,
+        "verify": 10.200299999269191,
+        "total": 21.82
+      }
+    },
+    {
+      "query": "टाइप 2 मधुमेह में कौन सा भोजन नहीं खाना चाहिए?",
+      "total_ms": 26.09,
+      "mode": "extractive",
+      "grounded": true,
+      "stages": {
+        "guard": 0.30849999984639,
+        "embed": 9.356100000331935,
+        "retrieve": 1.2882999999419553,
+        "gate": 0.09479999971517827,
+        "generate": 0.0037999998312443495,
+        "verify": 14.858700000331737,
+        "total": 25.91
+      }
+    },
+    {
+      "query": "What is the currency of Japan?",
+      "total_ms": 24.31,
+      "mode": "extractive",
+      "grounded": true,
+      "stages": {
+        "guard": 0.08820000039122533,
+        "embed": 10.250700000142388,
+        "retrieve": 0.9606000003259396,
+        "gate": 0.04650000028050272,
+        "generate": 0.003100000867561903,
+        "verify": 12.64530000025843,
+        "total": 23.99
+      }
+    },
+    {
+      "query": "कंप्यूटर का आविष्कार किसने किया?",
+      "total_ms": 22.93,
+      "mode": "extractive",
+      "grounded": true,
+      "stages": {
+        "guard": 0.14509999982692534,
+        "embed": 8.926900000005844,
+        "retrieve": 0.9615000008125207,
+        "gate": 0.058200000239594374,
+        "generate": 0.0028000004022032954,
+        "verify": 12.616199999683886,
+        "total": 22.71
+      }
+    },
+    {
+      "query": "सूर्य का तापमान कितना होता है?",
+      "total_ms": 28.91,
+      "mode": "extractive",
+      "grounded": true,
+      "stages": {
+        "guard": 0.09210000007442432,
+        "embed": 9.176399999887508,
+        "retrieve": 1.600499999767635,
+        "gate": 0.096000000667118,
+        "generate": 0.00419999923906289,
+        "verify": 17.76179999978922,
+        "total": 28.73
+      }
+    },
+    {
+      "query": "What is an API?",
+      "total_ms": 34.33,
+      "mode": "extractive",
+      "grounded": true,
+      "stages": {
+        "guard": 0.08230000003095483,
+        "embed": 7.889299999987998,
+        "retrieve": 0.8895000000848086,
+        "gate": 0.052600000344682485,
+        "generate": 0.002600000698294025,
+        "verify": 25.248100000681006,
+        "total": 34.16
+      }
+    }
+  ],
+  "config": {
+    "embed_model": "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2",
+    "llm_model": "openai/gpt-oss-20b",
+    "top_k": 6
+  }
+}

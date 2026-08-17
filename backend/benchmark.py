@@ -89,6 +89,26 @@ async def run_benchmark(n: int, json_out: str | None, quiet: bool = False):
     for stage, s in summary.by_stage.items():
         print(f"  {stage:10} {s['p50_ms']:7.1f} / {s['p70_ms']:7.1f} / {s['p100_ms']:7.1f} ms  (n={s['n']})")
 
+    # per-mode latency (fast-path extractive vs LLM generation)
+    from collections import defaultdict
+    by_mode: dict[str, list[float]] = defaultdict(list)
+    for r in results:
+        by_mode[r["mode"]].append(r["total_ms"])
+
+    def pct(vals, p):
+        vals = sorted(vals)
+        k = (len(vals) - 1) * p
+        import math
+        lo = math.floor(k)
+        hi = math.ceil(k)
+        if lo == hi:
+            return round(vals[int(k)], 1)
+        return round(vals[lo] * (hi - k) + vals[hi] * (k - lo), 1)
+
+    print("\n--- by mode (P50 / P70 / P100) ---")
+    for mode, vals in by_mode.items():
+        print(f"  {mode:10} {pct(vals,0.5):7.1f} / {pct(vals,0.7):7.1f} / {pct(vals,1.0):7.1f} ms  (n={len(vals)})")
+
     if json_out:
         Path(json_out).parent.mkdir(parents=True, exist_ok=True)
         payload = {

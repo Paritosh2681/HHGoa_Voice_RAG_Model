@@ -16,3 +16,6 @@ data/raw/
 # OS
 Thumbs.db
 .DS_Store
+
+# Misc runtime artifacts
+.freebuff/
