@@ -43,11 +43,23 @@ class PipelineHarness:
     def __init__(self, index: HybridIndex) -> None:
         self.index = index
         self._emb = get_embedding_provider(C.EMBED_MODEL)
+        self._client: Optional[httpx.AsyncClient] = None
+        self._answer_cache: dict[str, str] = {}
+
+    def _get_client(self) -> httpx.AsyncClient:
+        """Persistent connection pool (keep-alive) — avoids TLS + TCP setup on
+        every call, which alone costs hundreds of ms per request."""
+        if self._client is None:
+            self._client = httpx.AsyncClient(timeout=C.LLM_TIMEOUT,
+                                             limits=httpx.Limits(max_keepalive_connections=4))
+        return self._client
 
     # ------------------------------------------------------------- stage runs
     async def _run_llm(self, messages: list[dict], retries: int = C.MAX_LLM_RETRIES,
                        on_tokens: Optional[Callable[[str], None]] = None) -> str:
-        headers = {"Authorization": f"Bearer {C.LLM_API_KEY}", "Content-Type": "application/json"}
+        headers = {"Content-Type": "application/json"}
+        if C.LLM_API_KEY and "localhost" not in C.LLM_BASE_URL and "127.0.0.1" not in C.LLM_BASE_URL:
+            headers["Authorization"] = f"Bearer {C.LLM_API_KEY}"
         body = {
             "model": C.LLM_MODEL,
             "messages": messages,
@@ -55,37 +67,37 @@ class PipelineHarness:
             "max_tokens": C.LLM_MAX_TOKENS,
             "stream": on_tokens is not None,
         }
+        client = self._get_client()
         attempt = 0
         backoff = 0.4
         while True:
             try:
-                async with httpx.AsyncClient(timeout=C.LLM_TIMEOUT) as client:
-                    if on_tokens is None:
-                        resp = await client.post(f"{C.LLM_BASE_URL}/chat/completions",
-                                                 headers=headers, json=body)
-                        resp.raise_for_status()
-                        j = resp.json()
-                        return (j["choices"][0]["message"]["content"] or "").strip()
-                    # streaming
-                    chunks: list[str] = []
-                    async with client.stream("POST", f"{C.LLM_BASE_URL}/chat/completions",
-                                             headers=headers, json=body) as resp:
-                        resp.raise_for_status()
-                        async for line in resp.aiter_lines():
-                            if not line.startswith("data:"):
-                                continue
-                            data = line[5:].strip()
-                            if data == "[DONE]":
-                                break
-                            try:
-                                obj = json.loads(data)
-                                delta = obj["choices"][0]["delta"].get("content", "")
-                            except Exception:
-                                continue
-                            if delta:
-                                chunks.append(delta)
-                                on_tokens(delta)
-                    return "".join(chunks).strip()
+                if on_tokens is None:
+                    resp = await client.post(f"{C.LLM_BASE_URL}/chat/completions",
+                                             headers=headers, json=body)
+                    resp.raise_for_status()
+                    j = resp.json()
+                    return (j["choices"][0]["message"]["content"] or "").strip()
+                # streaming
+                chunks: list[str] = []
+                async with client.stream("POST", f"{C.LLM_BASE_URL}/chat/completions",
+                                         headers=headers, json=body) as resp:
+                    resp.raise_for_status()
+                    async for line in resp.aiter_lines():
+                        if not line.startswith("data:"):
+                            continue
+                        data = line[5:].strip()
+                        if data == "[DONE]":
+                            break
+                        try:
+                            obj = json.loads(data)
+                            delta = obj["choices"][0]["delta"].get("content", "")
+                        except Exception:
+                            continue
+                        if delta:
+                            chunks.append(delta)
+                            on_tokens(delta)
+                return "".join(chunks).strip()
             except httpx.HTTPStatusError as exc:
                 status = exc.response.status_code
                 if status in (429, 500, 502, 503, 504) and attempt < retries:
@@ -201,19 +213,32 @@ class PipelineHarness:
             return resp
 
         # -- 5. generate ---------------------------------------------------
+        # Fast-path: confident retrieval -> extractive answer in ~0 ms, keeping
+        # the whole pipeline inside the 200 ms budget. LLM is reserved for
+        # weak retrievals (or when fast-path is disabled).
         mode = "llm"
         answer = ""
         _emit(StreamEvent("answer_start", {}))
         t = time.perf_counter()
         try:
-            if C.LLM_API_KEY:
-                def _on_token(delta: str):
-                    _emit(StreamEvent("chunk", {"delta": delta}))
+            top_score = docs[0].score if docs else 0.0
+            fast_ok = C.FAST_PATH and top_score >= C.FAST_PATH_MIN_SCORE
+            if C.LLM_API_KEY and not fast_ok:
+                cache_key = guard.normalized
+                cached = self._answer_cache.get(cache_key)
+                if cached is not None:
+                    answer = cached
+                else:
+                    def _on_token(delta: str):
+                        _emit(StreamEvent("chunk", {"delta": delta}))
 
-                answer = await self._run_llm(self._build_prompt(guard.normalized, docs),
-                                             on_tokens=_on_token)
-                if not answer:
-                    raise RuntimeError("empty LLM output")
+                    # feed the LLM fewer, best-scored chunks (less prefill = faster)
+                    prompt_docs = docs[: C.RERANK_TOP]
+                    answer = await self._run_llm(self._build_prompt(guard.normalized, prompt_docs),
+                                                 on_tokens=_on_token)
+                    if not answer:
+                        raise RuntimeError("empty LLM output")
+                    self._answer_cache[cache_key] = answer
             else:
                 answer = self._extractive_answer(guard.normalized, docs)
                 mode = "extractive"
