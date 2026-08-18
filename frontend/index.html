@@ -1,498 +1,574 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>मैं हूँ — Voice RAG · HH Goa 2026</title>
-<meta name="description" content="One query. One wire. Everything measured. A voice-enabled RAG pipeline for HH Goa 2026 shortlisting task 02." />
+<title>THE EXCHANGE — Voice RAG · HH Goa 2026</title>
+<meta name="description" content="Lift the receiver. Ask in your own voice. The exchange patches your call to the answer — four ways of cutting, one hybrid line, every connection grounded and verified under 200ms." />
 <link rel="icon" type="image/webp" href="/assets/favicon.webp" />
+<meta name="theme-color" content="#0E0C08" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Imbue:opsz,wght@10..100,400;10..100,500;10..100,600;10..100,700;10..100,900&family=Victor+Mono:ital,wght@0,100;0,300;0,400;0,500;0,600;1,300;1,400&display=swap" rel="stylesheet" />
-<link rel="stylesheet" href="/styles.css" />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="/styles.css?v=22" />
 </head>
 <body>
 
-<!-- ============================================================ HERO -->
-<header class="hero" id="top">
-  <div class="hero__bg" aria-hidden="true">
-    <img src="/assets/Sun%20rise.png" alt="" class="hero__sun" />
-  </div>
+<!-- ============================================================ ATMOSPHERE -->
+<div class="scanlines" aria-hidden="true"></div>
+<div class="vignette" aria-hidden="true"></div>
 
-  <nav class="nav container">
-    <a class="nav__brand" href="#top">
-      <img src="/assets/2-47.svg" alt="2:47 pm" class="nav__logo" />
-      <span class="nav__brand--text">HACKER HOUSE<br />GOA</span>
-    </a>
-    <ul class="nav__links">
-      <li><a href="#wire">CHECK THE WIRE</a></li>
-      <li><a href="#pipeline">PIPELINE</a></li>
-      <li><a href="#chunking">CHUNKING</a></li>
-      <li><a href="#latency">LATENCY</a></li>
-      <li><a href="#faq">FAQ</a></li>
-    </ul>
-    <a class="btn btn--apply" href="#demo">ASK&nbsp;→</a>
-  </nav>
-
-  <div class="hero__inner container">
-    <p class="hero__eyebrow hero__anim" style="--d:.05s">
-      SHORTLISTING TASK 02 · VOICE-ENABLED RAG PIPELINE
-    </p>
-
-    <div class="hero__stage hero__anim" style="--d:.15s">
-      <img src="/assets/Hacker%20house.png" alt="HACKER HOUSE GOA" class="hero__house" />
-      <img src="/assets/goa_hindi.svg" alt="हिन्दी" class="hero__hindi" />
+<!-- ============================================================ LOADER -->
+<div class="loader" id="loader" aria-hidden="true">
+  <div class="loader__inner">
+    <div class="loader__dial">
+      <svg viewBox="0 0 240 240" role="img" aria-label="rotary dial">
+        <circle cx="120" cy="120" r="118" fill="#13100A" />
+        <circle cx="120" cy="120" r="102" fill="#D9A441" />
+        <circle cx="120" cy="120" r="100" fill="none" stroke="#F0C163" stroke-width="1.5" stroke-dasharray="2 6" opacity=".8" />
+        <g class="dial-face">
+          <circle cx="120" cy="120" r="84" fill="#F4ECD9" />
+          <circle cx="120" cy="120" r="84" fill="none" stroke="#8F8264" stroke-width="1" opacity=".6" />
+          <circle cx="120" cy="120" r="30" fill="#13100A" />
+          <g class="dial-holes">
+            <g transform="rotate(0 120 120)"><circle cx="120" cy="66" r="13" fill="#13100A" /></g>
+            <g transform="rotate(36 120 120)"><circle cx="120" cy="66" r="13" fill="#13100A" /></g>
+            <g transform="rotate(72 120 120)"><circle cx="120" cy="66" r="13" fill="#13100A" /></g>
+            <g transform="rotate(108 120 120)"><circle cx="120" cy="66" r="13" fill="#13100A" /></g>
+            <g transform="rotate(144 120 120)"><circle cx="120" cy="66" r="13" fill="#13100A" /></g>
+            <g transform="rotate(180 120 120)"><circle cx="120" cy="66" r="13" fill="#13100A" /></g>
+            <g transform="rotate(216 120 120)"><circle cx="120" cy="66" r="13" fill="#13100A" /></g>
+            <g transform="rotate(252 120 120)"><circle cx="120" cy="66" r="13" fill="#13100A" /></g>
+            <g transform="rotate(288 120 120)"><circle cx="120" cy="66" r="13" fill="#13100A" /></g>
+            <g transform="rotate(324 120 120)"><circle cx="120" cy="66" r="13" fill="#13100A" /></g>
+          </g>
+          <g class="dial-nums" font-family="Space Mono, monospace" font-size="11" fill="#8F8264" text-anchor="middle">
+            <text x="120" y="48">1</text>
+            <text x="152" y="56">2</text>
+            <text x="175" y="78">3</text>
+            <text x="183" y="108">4</text>
+            <text x="177" y="140">5</text>
+            <text x="158" y="164">6</text>
+            <text x="120" y="174">7</text>
+            <text x="82" y="166">8</text>
+            <text x="62" y="142">9</text>
+            <text x="57" y="110">0</text>
+          </g>
+        </g>
+        <circle cx="120" cy="120" r="9" fill="#F0C163" />
+      </svg>
     </div>
-
-    <h1 class="hero__title hero__anim" style="--d:.3s">
-      ASK IN YOUR<br />OWN VOICE.
-    </h1>
-
-    <p class="hero__lead hero__anim" style="--d:.45s">
-      Speech-to-text → multi-strategy chunking → hybrid retrieval →
-      grounded answers. Built for MSMARCO-XI, tuned to answer in
-      Hindi &amp; English under 200&nbsp;ms.
-    </p>
-
-    <div class="hero__cta hero__anim" style="--d:.6s">
-      <a class="btn btn--zigzag btn--glow" href="#demo">SPEAK NOW ↓</a>
-      <span class="hero__hint">⌁ no api key needed to try</span>
-    </div>
-  </div>
-
-  <div class="hero__strip container">
-    <p class="hero__strip--left">GOA, INDIA&nbsp;&nbsp;·&nbsp;&nbsp;28 – 31 OCT 2026</p>
-    <p class="hero__strip--right">2:47 pm Studio</p>
-  </div>
-
-  <div class="hero__fade" aria-hidden="true"></div>
-</header>
-
-<!-- ============================================================ MARQUEE -->
-<div class="marquee" aria-hidden="true">
-  <div class="marquee__track marquee__track--a">
-    <span>VOICE FIRST</span><i>✳</i>
-    <span>HYBRID RETRIEVAL</span><i>✳</i>
-    <span>FAISS × BM25 × RRF</span><i>✳</i>
-    <span>HINDI + ENGLISH</span><i>✳</i>
-    <span>GROUNDED ANSWERS</span><i>✳</i>
-    <span>P70 &lt; 200MS</span><i>✳</i>
-    <span>VOICE FIRST</span><i>✳</i>
-    <span>HYBRID RETRIEVAL</span><i>✳</i>
-    <span>FAISS × BM25 × RRF</span><i>✳</i>
-    <span>HINDI + ENGLISH</span><i>✳</i>
-    <span>GROUNDED ANSWERS</span><i>✳</i>
-    <span>P70 &lt; 200MS</span><i>✳</i>
-  </div>
-  <div class="marquee__track marquee__track--b">
-    <span>VOICE FIRST</span><i>✳</i>
-    <span>HYBRID RETRIEVAL</span><i>✳</i>
-    <span>FAISS × BM25 × RRF</span><i>✳</i>
-    <span>HINDI + ENGLISH</span><i>✳</i>
-    <span>GROUNDED ANSWERS</span><i>✳</i>
-    <span>P70 &lt; 200MS</span><i>✳</i>
-    <span>VOICE FIRST</span><i>✳</i>
-    <span>HYBRID RETRIEVAL</span><i>✳</i>
-    <span>FAISS × BM25 × RRF</span><i>✳</i>
-    <span>HINDI + ENGLISH</span><i>✳</i>
-    <span>GROUNDED ANSWERS</span><i>✳</i>
-    <span>P70 &lt; 200MS</span><i>✳</i>
+    <p class="loader__txt">LIFTING THE RECEIVER…</p>
+    <p class="loader__sub mono">dial tone · connecting the exchange</p>
   </div>
 </div>
 
-<!-- ============================================================ WIRE (black, video-analogue) -->
-<section class="wire" id="wire">
-  <img src="/assets/019-group-59467-54-3485.svg" alt="" class="wire__divider" aria-hidden="true" />
-  <div class="wire__inner container">
-    <p class="wire__label">check the wire — the voice between voice and answer</p>
-    <div class="wire__bars" aria-hidden="true"></div>
-    <a class="wire__link" href="#demo">↓&nbsp;&nbsp;CHECK THE WIRE&nbsp;&nbsp;↓</a>
+<!-- ============================================================ HEADER -->
+<header class="exhead">
+  <div class="exhead__inner container">
+    <a class="exhead__brand" href="#top">
+      <span class="exhead__word">OPERATOR</span>
+      <span class="exhead__sub mono">054 · THE EXCHANGE</span>
+    </a>
   </div>
-  <button type="button" class="wire__toggle" id="wireToggle" aria-label="Pause the wire">
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-      <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
-      <path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>
-      <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
-    </svg>
-  </button>
+</header>
+
+<!-- ============================================================ HERO -->
+<section class="hero" id="top">
+  <div class="hero__back" aria-hidden="true">
+    <div class="hero__photo">
+      <img src="https://images.unsplash.com/photo-1525598912003-663126343e1f?q=80&amp;w=1800&amp;auto=format&amp;fit=crop" alt="" />
+    </div>
+    <span class="hero__ghost">OPERATOR</span>
+    <canvas class="hero__wave" id="waveCanvas"></canvas>
+  </div>
+
+  <div class="hero__inner container">
+    <p class="hero__kicker mono">
+      <span class="blink">:</span> VOICE RAG · PATCHED BY HAND · HH GOA 2026 <span class="blink">:</span>
+    </p>
+
+    <h1 class="hero__title">
+      HELLO,<span class="hero__op">OPERATOR<span class="hero__dotp">.</span></span>
+    </h1>
+
+    <p class="hero__lead">
+      Ask in Hindi or English — the exchange patches your call to a grounded answer.
+    </p>
+
+    <div class="hero__cta">
+      <a class="plug-btn plug-btn--brass" href="#console">
+        MAKE A CALL
+      </a>
+    </div>
+  </div>
+
+  <div class="hero__fade" aria-hidden="true"></div>
 </section>
 
-<!-- ============================================================ STATS (inside the engine) -->
-<section class="stats section" id="stats">
-  <img src="/assets/details.png" alt="" class="stats__bg" aria-hidden="true" />
+<!-- ============================================================ THE EXCHANGE (pipeline) -->
+<section class="exchange section" id="exchange">
+  <img class="section__photo" src="https://images.unsplash.com/photo-1620566160204-017b23cf046d?q=80&amp;w=1800&amp;auto=format&amp;fit=crop" alt="" loading="lazy" />
   <div class="container">
     <div class="section__head section__head--center reveal">
-      <p class="mono section__tag">01 · THE ENGINE</p>
-      <h2 class="section__title">INSIDE THE ENGINE.</h2>
+      <h2 class="section__title">PATCH THE<br />CALL THROUGH<span class="t">.</span></h2>
       <p class="section__sub section__sub--center">
-        Every question walks the same wire — live numbers from the running
-        harness, not a lucky run.
+        Every question is a call. Six operators, one board — each moves the
+        signal one step closer to the answer, and the same six light up live
+        in the console below.
       </p>
     </div>
 
-    <div class="stats__grid">
+    <div class="stages reveal">
+      <div class="stage" data-op="01">
+        <div class="stage__num" aria-hidden="true">01</div>
+        <div class="stage__body">
+          <p class="stage__name mono">OPERATOR · GUARD</p>
+          <p class="stage__role">vet the caller</p>
+          <p class="stage__desc">Unsafe language and prompt-injection get refused before the line ever opens — in EN and Hindi.</p>
+          <ul class="stage__tags mono">
+            <li>SAFETY</li><li>INJECTION</li><li>EN+HI</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="stage stage--flip" data-op="02">
+        <div class="stage__num" aria-hidden="true">02</div>
+        <div class="stage__body">
+          <p class="stage__name mono">OPERATOR · EMBED</p>
+          <p class="stage__role">draw the number</p>
+          <p class="stage__desc">Every chunk becomes a vector via local ONNX embeddings — no cloud, no vector server, nothing leaves the room.</p>
+          <ul class="stage__tags mono">
+            <li>FAISS</li><li>ONNX</li><li>LOCAL</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="stage" data-op="03">
+        <div class="stage__num" aria-hidden="true">03</div>
+        <div class="stage__body">
+          <p class="stage__name mono">OPERATOR · RETRIEVE</p>
+          <p class="stage__role">cross the lines</p>
+          <p class="stage__desc">Dense cosine meets BM25 in a reciprocal-rank fuse, then metadata re-ranks. No single split decides the call.</p>
+          <ul class="stage__tags mono">
+            <li>FAISS ×</li><li>BM25</li><li>RRF</li><li>RERANK</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="stage stage--flip" data-op="04">
+        <div class="stage__num" aria-hidden="true">04</div>
+        <div class="stage__body">
+          <p class="stage__name mono">OPERATOR · GATE</p>
+          <p class="stage__role">clear for connection</p>
+          <p class="stage__desc">An off-topic veto blends cosine with lexical overlap. Wrong number? The exchange says so, out loud.</p>
+          <ul class="stage__tags mono">
+            <li>VETO</li><li>OFF-TOPIC</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="stage" data-op="05">
+        <div class="stage__num" aria-hidden="true">05</div>
+        <div class="stage__body">
+          <p class="stage__name mono">OPERATOR · GENERATE</p>
+          <p class="stage__role">take the message</p>
+          <p class="stage__desc">An LLM drafts the answer from the retrieved slips — and when the LLM is out, it answers extractively. Never a dropped call.</p>
+          <ul class="stage__tags mono">
+            <li>LLM</li><li>EXTRACTIVE</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="stage stage--flip" data-op="06">
+        <div class="stage__num" aria-hidden="true">06</div>
+        <div class="stage__body">
+          <p class="stage__name mono">OPERATOR · VERIFY</p>
+          <p class="stage__role">confirm the party</p>
+          <p class="stage__desc">Grounding check: the message must be traceable to the retrieved sources, or it is re-patched or refused.</p>
+          <ul class="stage__tags mono">
+            <li>GROUNDED</li><li>VERIFY</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ THE READOUT (stats) -->
+<section class="readout section" id="readout">
+  <div class="container">
+    <div class="section__head section__head--center reveal">
+      <h2 class="section__title">LIVE FROM<br />THE BOARD<span class="t">.</span></h2>
+      <p class="section__sub section__sub--center">
+        Real numbers off the running harness — not a lucky run, every request counted.
+      </p>
+    </div>
+
+    <div class="readout__grid">
       <div class="stat reveal" style="--d:.0s">
-        <p class="stat__num stat__num--cream" id="sRequests">0</p>
-        <p class="mono stat__label">Requests Streamed</p>
+        <p class="stat__idx mono">CALLS PATCHED</p>
+        <p class="stat__num" id="sRequests">0</p>
+        <p class="stat__label mono">requests streamed</p>
       </div>
-      <div class="stat reveal" style="--d:.1s">
-        <p class="stat__num stat__num--cream" id="sChunks">0</p>
-        <p class="mono stat__label">Chunks Indexed</p>
+      <div class="stat reveal" style="--d:.08s">
+        <p class="stat__idx mono">SLIPS ON FILE</p>
+        <p class="stat__num" id="sChunks">0</p>
+        <p class="stat__label mono">chunks indexed</p>
       </div>
-      <div class="stat reveal" style="--d:.2s">
-        <p class="stat__num stat__num--yellow">4</p>
-        <p class="mono stat__label">Chunking Strategies</p>
+      <div class="stat reveal" style="--d:.16s">
+        <p class="stat__idx mono">LINES IN PLAY</p>
+        <p class="stat__num stat__num--static">4</p>
+        <p class="stat__label mono">chunking strategies</p>
       </div>
-      <div class="stat reveal" style="--d:.3s">
-        <p class="stat__num stat__num--yellow" id="sP70">–</p>
-        <p class="mono stat__label">P70 Target &lt; 200 ms</p>
+      <div class="stat reveal" style="--d:.24s">
+        <p class="stat__idx mono">P70 LINE LIMIT</p>
+        <p class="stat__num" id="sP70">–</p>
+        <p class="stat__label mono">target &lt; 200 ms</p>
       </div>
     </div>
   </div>
 </section>
 
-<!-- ============================================================ PIPELINE (inside the room) -->
-<section class="pipeline section" id="pipeline">
-  <img src="/assets/agenda.png" alt="" class="pipeline__bg" aria-hidden="true" />
-  <img src="/assets/019-group-59467-54-3485.svg" alt="" class="pipeline__divider" aria-hidden="true" />
-
-  <div class="container">
-    <div class="section__head section__head--center reveal">
-      <p class="mono section__tag">02 · THE RHYTHM</p>
-      <h2 class="section__title">4 STAGES.<br />ONE WIRE.</h2>
-      <p class="section__sub section__sub--center">
-        Listen. Split. Retrieve. Answer — the only four moves in the song,
-        every single request.
-      </p>
-    </div>
-
-    <div class="pipeline__board">
-      <div class="pipeline__center">
-        <img src="/assets/036-vector-54-3934.svg" alt="" />
-      </div>
-
-      <article class="day day--tl reveal" style="--d:.1s">
-        <h3 class="day__name">day 01 · listen</h3>
-        <p class="day__sub">voice in. text out.</p>
-        <ul class="day__tags">
-          <li>SARVAM</li><li>ELEVENLABS</li><li>GROQ</li>
-        </ul>
-      </article>
-
-      <article class="day day--bl reveal" style="--d:.25s">
-        <h3 class="day__name">day 02 · split</h3>
-        <p class="day__sub">four cuts. one corpus.</p>
-        <ul class="day__tags">
-          <li>FIXED</li><li>SEMANTIC</li><li>META</li><li>ANSWER</li>
-        </ul>
-      </article>
-
-      <article class="day day--tr reveal" style="--d:.4s">
-        <h3 class="day__name">day 03 · retrieve</h3>
-        <p class="day__sub">faiss meets bm25 in rrf.</p>
-        <ul class="day__tags">
-          <li>FAISS</li><li>BM25</li><li>RRF</li><li>RERANK</li>
-        </ul>
-      </article>
-
-      <article class="day day--br reveal" style="--d:.55s">
-        <h3 class="day__name">day 04 · answer</h3>
-        <p class="day__sub">grounded. verified. fast.</p>
-        <ul class="day__tags">
-          <li>LLM</li><li>EXTRACTIVE</li><li>VERIFY</li>
-        </ul>
-      </article>
-    </div>
-  </div>
-</section>
-
-<!-- ============================================================ CHUNKING -->
-<section class="chunking section" id="chunking">
-  <img src="/assets/002-group-54-14.svg" alt="" class="zigzag zigzag--top" aria-hidden="true" />
+<!-- ============================================================ THE FILING CABINET (chunking) -->
+<section class="files section" id="files">
   <div class="container">
     <div class="section__head reveal">
-      <p class="mono section__tag">03 · THE SPLIT</p>
-      <h2 class="section__title section__title--dark">CHUNK IT<br />FOUR WAYS.</h2>
-      <p class="section__sub section__sub--dark">
-        One corpus, four views. Retrieval fuses them instead of betting on a
-        single naive fixed-size split.
+      <h2 class="section__title section__title--cream">FOUR FILES.<br />ONE ANSWER<span class="t">.</span></h2>
+      <p class="section__sub section__sub--cream">
+        One corpus, four ways of cutting it. The exchange keeps all four drawers
+        open and fuses them at retrieval — instead of betting on a single naive split.
       </p>
     </div>
 
-    <div class="chunking__grid">
-      <article class="strategy reveal" style="--d:.0s">
-        <span class="strategy__icon">⬚</span>
-        <h4 class="mono strategy__name">FIXED_OVERLAP</h4>
-        <p class="strategy__body">
-          Sliding window of 320 chars with 64 overlap — catches phrasing that
-          straddles boundaries.
+    <div class="files__grid">
+      <article class="file reveal" style="--d:.0s">
+        <span class="file__tab mono">FIXED_OVERLAP</span>
+        <p class="file__body">
+          A sliding window of 320 chars with 64 overlap — catches phrasing
+          that straddles the cut.
         </p>
-        <span class="strategy__meta" data-strategy="fixed_overlap">–</span>
+        <span class="file__meta" data-strategy="fixed_overlap">–</span>
       </article>
 
-      <article class="strategy reveal" style="--d:.08s">
-        <span class="strategy__icon">§</span>
-        <h4 class="mono strategy__name">SEMANTIC</h4>
-        <p class="strategy__body">
-          Sentence embeddings merge neighbours until they drift — groups keep
-          one coherent idea.
+      <article class="file reveal" style="--d:.08s">
+        <span class="file__tab mono">SEMANTIC</span>
+        <p class="file__body">
+          Sentence embeddings merge neighbours until they drift — one coherent
+          idea per unit.
         </p>
-        <span class="strategy__meta" data-strategy="semantic">–</span>
+        <span class="file__meta" data-strategy="semantic">–</span>
       </article>
 
-      <article class="strategy reveal" style="--d:.16s">
-        <span class="strategy__icon">≋</span>
-        <h4 class="mono strategy__name">METADATA</h4>
-        <p class="strategy__body">
-          Title + context units answer their own question — the retrieval
-          equivalent of a well-tagged book.
+      <article class="file reveal" style="--d:.16s">
+        <span class="file__tab mono">METADATA</span>
+        <p class="file__body">
+          Title + context units answer their own question — the well-tagged
+          shelf of the archive.
         </p>
-        <span class="strategy__meta" data-strategy="metadata">–</span>
+        <span class="file__meta" data-strategy="metadata">–</span>
       </article>
 
-      <article class="strategy reveal" style="--d:.24s">
-        <span class="strategy__icon">☷</span>
-        <h4 class="mono strategy__name">ANSWER</h4>
-        <p class="strategy__body">
-          Gold answers kept as their own retrievable units — self-answering
-          chunks that boost grounded hits.
+      <article class="file reveal" style="--d:.24s">
+        <span class="file__tab mono">ANSWER</span>
+        <p class="file__body">
+          Gold answers filed as their own retrievable units — the self-answering
+          drawer that boosts grounded hits.
         </p>
-        <span class="strategy__meta" data-strategy="answer">–</span>
+        <span class="file__meta" data-strategy="answer">–</span>
       </article>
     </div>
   </div>
-  <img src="/assets/008-group-54-324.svg" alt="" class="zigzag zigzag--bottom" aria-hidden="true" />
 </section>
 
-<!-- ============================================================ GUARDRAILS (less noise. more signal.) -->
-<section class="guard section" id="guardrails">
-  <img src="/assets/hackers.png" alt="" class="guard__bg" aria-hidden="true" />
+<!-- ============================================================ THE GUARDROOM (guardrails) -->
+<section class="guardroom section" id="guardroom">
+  <img class="section__photo section__photo--red" src="https://images.unsplash.com/photo-1694537664382-90ea5d1de7e6?q=80&amp;w=1600&amp;auto=format&amp;fit=crop" alt="" loading="lazy" />
   <div class="container">
-    <div class="guard__grid">
+    <div class="guardroom__grid">
       <div class="section__head reveal">
-        <p class="mono section__tag">04 · THE VETO</p>
-        <h2 class="section__title">LESS NOISE.<br />MORE SIGNAL.</h2>
+        <h2 class="section__title">CALLS WE<br />DON'T CONNECT<span class="t">.</span></h2>
         <p class="section__sub">
-          The pipeline knows when <i>not</i> to answer — and says so out loud.
+          The exchange knows when <i>not</i> to answer — and says so out loud.
         </p>
-        <a class="btn btn--zigzag btn--glow guard__cta" href="#demo">GO TO THE DEMO →</a>
+        <a class="plug-btn plug-btn--red guardroom__cta" href="#console">
+          TRY TO GET BLOCKED
+        </a>
       </div>
 
-      <div class="guard__list">
-        <div class="guard__row reveal" style="--d:.05s">
-          <span class="guard__check guard__check--no">✕</span>
+      <div class="guardroom__list reveal">
+        <div class="guardrow" style="--d:.05s">
+          <span class="guardrow__lamp" aria-hidden="true"></span>
           <p><b>Unsafe language</b> — EN + HI blocklists, folded for devanagari.</p>
         </div>
-        <div class="guard__row reveal" style="--d:.12s">
-          <span class="guard__check guard__check--no">✕</span>
+        <div class="guardrow" style="--d:.12s">
+          <span class="guardrow__lamp" aria-hidden="true"></span>
           <p><b>Prompt injection</b> — "ignore your instructions" and jailbreak patterns.</p>
         </div>
-        <div class="guard__row reveal" style="--d:.19s">
-          <span class="guard__check guard__check--no">✕</span>
-          <p><b>Off-topic</b> — retrieval confidence gate blends cosine + lexical overlap.</p>
+        <div class="guardrow" style="--d:.19s">
+          <span class="guardrow__lamp" aria-hidden="true"></span>
+          <p><b>Off-topic</b> — the confidence gate blends cosine + lexical overlap.</p>
         </div>
-        <div class="guard__row reveal" style="--d:.26s">
-          <span class="guard__check guard__check--no">✕</span>
-          <p><b>Hallucination</b> — the answer must be grounded in retrieved sources.</p>
+        <div class="guardrow" style="--d:.26s">
+          <span class="guardrow__lamp" aria-hidden="true"></span>
+          <p><b>Hallucination</b> — the message must be grounded in retrieved slips.</p>
         </div>
-        <div class="guard__row reveal" style="--d:.33s">
-          <span class="guard__check guard__check--yes">✓</span>
-          <p><b>Graceful degradation</b> — LLM down? It answers extractively, never 500s.</p>
+        <div class="guardrow" style="--d:.33s">
+          <span class="guardrow__lamp" aria-hidden="true"></span>
+          <p><b>Graceful degradation</b> — LLM down? It answers extractively, never a 500.</p>
         </div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- ============================================================ LIVE DEMO -->
-<section class="demo section" id="demo">
-  <img src="/assets/155-group-54-27661.svg" alt="" class="zigzag zigzag--top" aria-hidden="true" />
+<!-- ============================================================ THE CONSOLE (demo) -->
+<section class="console section" id="console">
   <div class="container">
     <div class="section__head section__head--center reveal">
-      <p class="mono section__tag">05 · TRY IT</p>
-      <h2 class="section__title">SPEAK. OR TYPE.<br />WATCH THE WIRE.</h2>
+      <h2 class="section__title">LIFT THE<br />RECEIVER<span class="t">.</span> ASK<span class="t">.</span></h2>
+      <p class="section__sub section__sub--center">
+        Hold to speak, or type below. Watch the same six operators light up
+        as the call is patched through.
+      </p>
     </div>
 
-    <div class="demo__board reveal">
-      <div class="demo__input">
-        <button id="micBtn" class="btn btn--zigzag btn--mic" type="button">
-          <span class="mic-glyph">●</span> HOLD &amp; SPEAK
+    <div class="console__board reveal">
+
+      <div class="console__head mono">
+        <span>CONSOLE 054 — MAIN LINE</span>
+        <span class="console__head-light"><i></i> OPEN</span>
+      </div>
+
+      <div class="console__callrow">
+        <button id="talkBtn" class="talk" type="button" aria-label="hold to talk">
+          <span class="talk__mic">
+            <svg viewBox="0 0 24 24" width="34" height="34" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="9" y="2" width="6" height="12" rx="3"></rect>
+              <path d="M5 11a7 7 0 0 0 14 0"></path>
+              <path d="M12 18v4M8 22h8"></path>
+            </svg>
+          </span>
+          <span class="talk__label mono"><b class="mic-glyph">●</b> <span class="talk__txt">HOLD &amp; SPEAK</span></span>
+          <span class="talk__cord" aria-hidden="true"></span>
         </button>
-        <div class="demo__or mono">/ OR TYPE ↓</div>
-        <form id="askForm" class="demo__form">
+
+        <div class="console__or mono">· OR TYPE ·</div>
+
+        <form id="askForm" class="console__form">
           <input id="askInput" type="text" autocomplete="off"
                  placeholder="मेनहट्टन प्रोजेक्ट की सफलता का तात्कालिक प्रभाव क्या था?" />
-          <button class="btn btn--solid" type="submit">ASK →</button>
+          <button class="console__go" type="submit">
+            <span class="console__go-txt">ASK</span><span class="console__go-arrow">→</span>
+          </button>
         </form>
       </div>
 
-      <div class="demo__chips mono">
-        <button data-q="मेनहट्टन प्रोजेक्ट की सफलता का तात्कालिक प्रभाव क्या था?">मेनहट्टन प्रोजेक्ट?</button>
+      <div class="console__chips mono">
+        <button data-q="मेनहट्टन प्रोजेक्ट की सफलता का तात्कालिक प्रभाव क्या था?">मेनहट्टन?</button>
         <button data-q="What is the capital of Australia?">AUSTRALIA?</button>
         <button data-q="सौरमंडल का सबसे बड़ा ग्रह कौन सा है?">बड़ा ग्रह?</button>
         <button data-q="अभी मौसम कैसा है?">मौसम? (refuse)</button>
       </div>
 
-      <div class="demo__stage" id="stageArea">
-        <div class="stage__scroller">
-          <div class="stage__line stage__line--idle" data-stage-line="guard">guard</div>
-          <div class="stage__line" data-stage-line="embed">embed</div>
-          <div class="stage__line" data-stage-line="retrieve">retrieve</div>
-          <div class="stage__line" data-stage-line="gate">gate</div>
-          <div class="stage__line" data-stage-line="generate">generate</div>
-          <div class="stage__line" data-stage-line="verify">verify</div>
+      <!-- the patch lane -->
+      <div class="lane" id="patchLane">
+        <span class="lane__dot" id="laneDot"></span>
+        <div class="lane__rail"></div>
+        <div class="lane__lamps">
+          <span class="lane__lamp" data-stage-line="guard">guard</span>
+          <span class="lane__lamp" data-stage-line="embed">embed</span>
+          <span class="lane__lamp" data-stage-line="retrieve">retrieve</span>
+          <span class="lane__lamp" data-stage-line="gate">gate</span>
+          <span class="lane__lamp" data-stage-line="generate">generate</span>
+          <span class="lane__lamp" data-stage-line="verify">verify</span>
         </div>
       </div>
 
-      <div class="demo__out">
-        <div id="sttBadge" class="mono stt-badge">—</div>
-        <div id="answer" class="answer">
-          <span class="answer__cursor"></span>
+      <div class="console__out">
+        <div id="sttBadge" class="console__stt mono">—</div>
+
+        <div class="slip">
+          <div class="slip__head mono">
+            <span>OPERATOR 054 · MESSAGE SLIP</span><span class="slip__no">#—</span>
+          </div>
+          <div id="answer" class="slip__answer"><span class="answer__cursor"></span></div>
         </div>
-        <div id="meta" class="demo__meta mono">—</div>
+
+        <div id="meta" class="console__meta mono">—</div>
+        <div id="sources" class="console__sources"></div>
       </div>
 
-      <div class="demo__sources" id="sources"></div>
-      <div id="status" class="mono demo__status">press the button, or type a question above</div>
+      <div id="status" class="console__status mono">line open — press the handset, or type a question above</div>
     </div>
   </div>
-  <img src="/assets/149-group-54-27351.svg" alt="" class="zigzag zigzag--bottom" aria-hidden="true" />
 </section>
 
-<!-- ============================================================ LATENCY -->
-<section class="latency section" id="latency">
+<!-- crossed-line easter egg -->
+<div class="crossed" id="crossedNote" aria-hidden="true">— crossed line · wrong number? —</div>
+
+<!-- ============================================================ TELEMETRY (latency) -->
+<section class="telemetry section" id="telemetry">
   <div class="container">
     <div class="section__head section__head--center reveal">
-      <p class="mono section__tag">06 · THE NUMBERS</p>
-      <h2 class="section__title section__title--dark">P50 · P70 · P100.<br />UNDER 200MS.</h2>
-      <p class="section__sub section__sub--dark">
-        Rolling percentiles across every real request — not a cherry-picked
-        best case.
+      <h2 class="section__title section__title--cream">UNDER 200 MS,<br />OR THE LINE DROPS<span class="t">.</span></h2>
+      <p class="section__sub section__sub--center section__sub--cream">
+        Rolling percentiles across every real request — the strictest reading
+        of the wire.
       </p>
     </div>
 
-    <div class="latency__row">
-      <div class="latency__card latency__card--big reveal" style="--d:.0s">
-        <p class="mono latency__label">P50 — TYPICAL</p>
-        <p class="latency__value" id="mP50">–</p>
+    <div class="telemetry__row">
+      <div class="gauge gauge--big reveal" style="--d:.0s">
+        <div class="gauge__face">
+          <div class="gauge__ticks" aria-hidden="true"></div>
+          <div class="gauge__needle" data-gauge="p50"></div>
+          <div class="gauge__hub" aria-hidden="true"></div>
+          <p class="gauge__value" id="mP50">–</p>
+        </div>
+        <p class="gauge__label mono">P50 — TYPICAL</p>
       </div>
-      <div class="latency__card reveal" style="--d:.1s">
-        <p class="mono latency__label">P70</p>
-        <p class="latency__value" id="mP70">–</p>
+
+      <div class="gauge reveal" style="--d:.08s">
+        <div class="gauge__face">
+          <div class="gauge__ticks" aria-hidden="true"></div>
+          <div class="gauge__needle" data-gauge="p70"></div>
+          <div class="gauge__hub" aria-hidden="true"></div>
+          <p class="gauge__value" id="mP70">–</p>
+        </div>
+        <p class="gauge__label mono">P70</p>
       </div>
-      <div class="latency__card reveal" style="--d:.2s">
-        <p class="mono latency__label">P100 — WORST</p>
-        <p class="latency__value" id="mP100">–</p>
+
+      <div class="gauge reveal" style="--d:.16s">
+        <div class="gauge__face">
+          <div class="gauge__ticks" aria-hidden="true"></div>
+          <div class="gauge__needle" data-gauge="p100"></div>
+          <div class="gauge__hub" aria-hidden="true"></div>
+          <p class="gauge__value" id="mP100">–</p>
+        </div>
+        <p class="gauge__label mono">P100 — WORST</p>
       </div>
-      <div class="latency__card latency__card--dark reveal" style="--d:.3s">
-        <p class="mono latency__label">REQUESTS</p>
-        <p class="latency__value" id="mN">–</p>
+
+      <div class="gauge gauge--dark reveal" style="--d:.24s">
+        <div class="gauge__face">
+          <div class="gauge__ticks" aria-hidden="true"></div>
+          <div class="gauge__needle" data-gauge="n"></div>
+          <div class="gauge__hub" aria-hidden="true"></div>
+          <p class="gauge__value" id="mN">–</p>
+        </div>
+        <p class="gauge__label mono">REQUESTS</p>
       </div>
     </div>
 
-    <div class="latency__bars" id="stageBars"></div>
+    <div class="telemetry__bars" id="stageBars"></div>
   </div>
 </section>
 
-<!-- ============================================================ FAQ -->
-<section class="faq section" id="faq">
+<!-- ============================================================ THE DIRECTORY (faq) -->
+<section class="directory section" id="directory">
   <div class="container">
     <div class="section__head section__head--center reveal">
-      <p class="mono section__tag">07 · FAQ</p>
-      <h2 class="section__title">WHYS &amp; WHEREFORES.</h2>
+      <h2 class="section__title">FOR ANSWERS,<br />DIAL THIS<span class="t">.</span></h2>
     </div>
 
-    <div class="faq__list reveal">
-      <img src="/assets/138-frame-1948755142-54-27257.svg" alt="" class="faq__frame" aria-hidden="true" />
-
-      <details class="faq__item">
-        <summary><span>What is this?</span><span class="faq__plus" aria-hidden="true">+</span></summary>
-        <p>
+    <div class="directory__list reveal">
+      <details class="dir">
+        <summary>
+          <span class="dir__idx mono">054 001</span>
+          <span class="dir__q">What is this?</span>
+          <span class="dir__plus" aria-hidden="true">+</span>
+        </summary>
+        <p class="dir__a">
           A voice-enabled RAG pipeline for the HH Goa 2026 shortlisting task.
           It transcribes speech, retrieves from an MSMARCO-XI mirror corpus
           using hybrid FAISS + BM25 retrieval, and answers with grounded
           generation — in Hindi or English.
         </p>
       </details>
-      <img src="/assets/140-frame-1948755145-54-27273.svg" alt="" class="faq__frame" aria-hidden="true" />
 
-      <details class="faq__item">
-        <summary><span>Which dataset?</span><span class="faq__plus" aria-hidden="true">+</span></summary>
-        <p>
+      <details class="dir">
+        <summary>
+          <span class="dir__idx mono">054 002</span>
+          <span class="dir__q">Which dataset?</span>
+          <span class="dir__plus" aria-hidden="true">+</span>
+        </summary>
+        <p class="dir__a">
           <span class="mono">ai4bharat/MSMARCO-XI</span>. The bundled demo index
           runs on a curated mirror so it boots instantly and works offline;
           set <span class="mono">HHGOA_USE_REAL=1</span> to build from the real
           streamed corpus.
         </p>
       </details>
-      <img src="/assets/140-frame-1948755145-54-27273.svg" alt="" class="faq__frame" aria-hidden="true" />
 
-      <details class="faq__item">
-        <summary><span>Which STT provider?</span><span class="faq__plus" aria-hidden="true">+</span></summary>
-        <p>
+      <details class="dir">
+        <summary>
+          <span class="dir__idx mono">054 003</span>
+          <span class="dir__q">Which STT provider?</span>
+          <span class="dir__plus" aria-hidden="true">+</span>
+        </summary>
+        <p class="dir__a">
           <span class="mono">Sarvam saaras:v3</span> by default, with ElevenLabs
           <span class="mono">scribe_v2</span> and Groq Whisper as alternates via
           <span class="mono">HHGOA_STT_PROVIDER</span>.
         </p>
       </details>
-      <img src="/assets/140-frame-1948755145-54-27273.svg" alt="" class="faq__frame" aria-hidden="true" />
 
-      <details class="faq__item">
-        <summary><span>Why four chunking strategies?</span><span class="faq__plus" aria-hidden="true">+</span></summary>
-        <p>
+      <details class="dir">
+        <summary>
+          <span class="dir__idx mono">054 004</span>
+          <span class="dir__q">Why four chunking strategies?</span>
+          <span class="dir__plus" aria-hidden="true">+</span>
+        </summary>
+        <p class="dir__a">
           Naive fixed-size chunks break meaning. Fixed-overlap covers phrasing
           drift, sentence windows stay linguistically clean, semantic chunks
           keep one idea per unit, and metadata chunks self-describe — fusion
           benefits from all four.
         </p>
       </details>
-      <img src="/assets/140-frame-1948755145-54-27273.svg" alt="" class="faq__frame" aria-hidden="true" />
 
-      <details class="faq__item">
-        <summary><span>How do you hit 200ms?</span><span class="faq__plus" aria-hidden="true">+</span></summary>
-        <p>
+      <details class="dir">
+        <summary>
+          <span class="dir__idx mono">054 005</span>
+          <span class="dir__q">How do you hit 200 ms?</span>
+          <span class="dir__plus" aria-hidden="true">+</span>
+        </summary>
+        <p class="dir__a">
           Everything runs locally — fastembed ONNX, FAISS + BM25 in-process, no
           vector-server round trips — with pre-warmed models, and an extractive
           fallback that skips the LLM entirely when no key is set.
         </p>
       </details>
-      <img src="/assets/140-frame-1948755145-54-27273.svg" alt="" class="faq__frame" aria-hidden="true" />
     </div>
   </div>
 </section>
 
 <!-- ============================================================ FOOTER -->
 <footer class="footer">
-  <div class="footer__trees" aria-hidden="true">
-    <img src="/assets/footer%20trees.png" alt="" />
-  </div>
   <div class="footer__inner container">
-    <img src="/assets/179-vector-54-30944.svg" alt="" class="footer__vector" aria-hidden="true" />
-    <p class="footer__big">ASK IN YOUR OWN VOICE.</p>
+    <div class="footer__sign">
+      <p class="footer__big">OPERATOR<br />SIGNING OFF<span class="t">.</span></p>
+    </div>
+    <p class="footer__sub mono">end of transmission · ask in your own voice</p>
 
     <div class="footer__strip">
-      <p class="mono footer__strip--left">GOA, INDIA&nbsp;&nbsp;·&nbsp;&nbsp;28 – 31 OCT 2026</p>
-      <p class="mono footer__strip--right">2:47 pm Studio</p>
+      <p class="mono">GOA, INDIA&nbsp;&nbsp;·&nbsp;&nbsp;28 – 31 OCT 2026</p>
+      <p class="mono">2:47 pm Studio</p>
     </div>
 
     <div class="footer__row">
-      <p class="mono footer__credit">
-        © 2026 HH-GOA · BUILT FOR <a href="https://hhgoa.com" target="_blank" rel="noopener">HACKER HOUSE GOA</a> ·
+      <p class="footer__credit mono">
+        © 2026 HH-GOA · BUILT FOR <a href="https://hhgoa.com" target="_blank" rel="noopener">HACKER GOA HOUSE</a> ·
         SHORTLISTING TASK 02 · <a href="https://x.com/search?q=%23RAGInGoa" target="_blank" rel="noopener">#RAGInGoa</a>
       </p>
-      <div class="footer__social">
-        <a href="https://www.instagram.com" target="_blank" rel="noopener" aria-label="instagram"><img src="/assets/180-frame-1948754793-54-30952.svg" alt="IG" /></a>
-        <a href="https://x.com/247pmstudio" target="_blank" rel="noopener" aria-label="x"><img src="/assets/181-frame-1948754789-54-30958.svg" alt="X" /></a>
-        <a href="mailto:satapathyprayasu@gmail.com" target="_blank" rel="noopener" aria-label="email"><img src="/assets/182-frame-1948754788-54-30962.svg" alt="mail" /></a>
-      </div>
     </div>
 
-    <p class="mono footer__note">
-      DESIGN LANGUAGE + ASSETS FROM HH GOA / 2:47 PM STUDIO — USED FOR THIS SUBMISSION DEMO.
+    <p class="footer__note mono">
+      ORIGINAL DESIGN — "THE EXCHANGE" · HH GOA / 2:47 PM STUDIO · SUBMISSION DEMO
     </p>
   </div>
 </footer>
 
-<script src="/app.js"></script>
+<script src="/app.js?v=22"></script>
 </body>
 </html>
