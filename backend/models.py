@@ -58,7 +58,7 @@ class AskResponse(BaseModel):
     request_id: str
     query: str
     answer: str
-    mode: Literal["llm", "extractive", "refused"]
+    mode: Literal["llm", "extractive", "refused", "quantum_cache", "lex_fast"]
     grounded: bool
     guardrails: GuardResult
     sources: list[RetrievedDoc] = Field(default_factory=list)
@@ -66,6 +66,8 @@ class AskResponse(BaseModel):
     total_ms: float = 0.0
     pipeline: list[str] = Field(default_factory=list)
     created_at: str = ""
+    additional_answer: Optional[str] = None   # LLM's own knowledge when RAG refuses
+    from_corpus: bool = True                  # False when answer is from LLM, not corpus
 
 
 class MetricPoint(BaseModel):
