@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: hh-goa-rag
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: python -m backend.main
+    healthCheckPath: /api/health
+    envVars:
+      - key: HHGOA_HOST
+        value: 0.0.0.0
+      - key: HHGOA_PORT
+        value: 10000
+      - key: PYTHON_VERSION
+        value: "3.12"

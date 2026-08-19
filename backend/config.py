@@ -70,6 +70,11 @@ SELECTED_BOOST = float(os.getenv("HHGOA_SELECTED_BOOST", "0.55"))
 FAST_PATH = os.getenv("HHGOA_FAST_PATH", "1") == "1"
 FAST_PATH_MIN_SCORE = float(os.getenv("HHGOA_FAST_PATH_MIN_SCORE", "0.55"))
 
+# Lexical fast preflight: BM25-only path before ONNX embed.
+LEX_FAST = os.getenv("HHGOA_LEX_FAST", "1") == "1"
+LEX_FAST_MIN_SCORE = float(os.getenv("HHGOA_LEX_FAST_MIN_SCORE", "5.0"))
+LEX_FAST_MIN_COVERAGE = float(os.getenv("HHGOA_LEX_FAST_MIN_COVERAGE", "0.15"))
+
 # --- STT ---------------------------------------------------------------------
 # Provider: sarvam | elevenlabs | groq | local
 STT_PROVIDER = os.getenv("HHGOA_STT_PROVIDER", "sarvam").lower()
@@ -95,7 +100,7 @@ LATENCY_WINDOW = int(os.getenv("HHGOA_LATENCY_WINDOW", "500"))  # rolling sample
 
 # --- App ----------------------------------------------------------------------
 HOST = os.getenv("HHGOA_HOST", "0.0.0.0")
-PORT = int(os.getenv("HHGOA_PORT", "8000"))
+PORT = int(os.getenv("HHGOA_PORT", os.getenv("PORT", "8000")))
 
 for _d in (DATA_DIR, INDEX_DIR):
     _d.mkdir(parents=True, exist_ok=True)
