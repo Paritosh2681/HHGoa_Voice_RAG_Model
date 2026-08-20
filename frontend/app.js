@@ -407,12 +407,11 @@
     } else if (t === "fallback") {
       setStatus("llm out of service → extractive fallback (" + evt.reason + ")");
     } else if (t === "stt") {
-      sttEl.textContent = "STT · " + evt.provider + " · " + evt.language + " · " + (evt.stt_ms || 0).toFixed(0) + " ms";
+      sttEl.textContent = "🎙️ Voice Recognized: \"" + (evt.transcript || "") + "\"";
       $("#askInput").value = evt.transcript || "";
     } else if (t === "done") {
-      const ms = Math.round(performance.now() - start);
       const r = evt;
-      const ragMs = (r.total_ms !== undefined) ? r.total_ms : ms;
+      const ragMs = (r.total_ms !== undefined) ? r.total_ms : Math.round(performance.now() - start);
       if (r.mode === "refused") {
         if (r.answer) setAnswer(r.answer, true);
         else setAnswer(accumulatedAnswer, true);
@@ -427,12 +426,11 @@
 
       metaEl.textContent =
         "mode: " + r.mode + " · grounded: " + r.grounded +
-        " · RAG: " + ragMs + " ms" +
-        (isVoice ? " (voice STT + net: " + ms + " ms)" : "") +
+        " · RAG Latency: " + ragMs + " ms" +
         " · " + (r.pipeline || []).join(" → ");
       laneLamps.forEach((l) => markStage(l.dataset.stageLine, "done"));
       lane.classList.remove("is-active");
-      setStatus("patched through in " + ragMs + " ms (RAG pipeline)" + (isVoice ? " · STT voice call" : ""));
+      setStatus("⚡ patched through in " + ragMs + " ms");
       if (r.sources) renderSources(r.sources);
       maybeCrossedLine();
       if (isVoice) playVoice(accumulatedAnswer);
