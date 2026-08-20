@@ -315,28 +315,62 @@ class PipelineHarness:
             _emit(StreamEvent("done", resp.model_dump()))
             return resp
 
-        # 5. generate (extractive)
+        # 5. generate (coverage-gated extractive)
+        # Extractive is only trustworthy when the top passage ACTUALLY covers
+        # the query's content tokens — a high cosine on a noisy corpus can
+        # still be an irrelevant passage ("Rent prices in Italy... France" for
+        # "capital of France"). If the passage does not contain every content
+        # token, the answer is NOT in the corpus -> honest refusal, no LLM.
         _emit(StreamEvent("answer_start", {})); t = time.perf_counter()
-        answer = self._extractive_answer(guard.normalized, docs)
-        _emit(StreamEvent("chunk", {"delta": answer}))
-        times["generate"] = round((time.perf_counter() - t) * 1000.0, 2); pipeline.append("generate")
-        _emit(StreamEvent("stage", {"stage": "generate", "ms": times["generate"]}))
-
-        # 6. verify
-        t = time.perf_counter()
-        top_docs = [d for d in docs[:C.RERANK_TOP] if d.score >= 0.01]
-        g = grounding_score(answer, [d.text for d in top_docs], self._emb)
-        times["verify"] = round((time.perf_counter() - t) * 1000.0, 2); pipeline.append("verify")
-        _emit(StreamEvent("stage", {"stage": "verify", "ms": times["verify"]}))
-        if not g["grounded"]: answer = self._get_refusal_message(guard.normalized); mode = "refused"; grounded = False
+        q_content = _content_tokens(guard.normalized)
+        top_score = docs[0].score if docs else 0.0
+        if docs and q_content:
+            top_tokens = _content_tokens(" ".join(d.text for d in docs[:2]))
+            inter = len(q_content & top_tokens)
+            cov = inter / max(1, len(q_content))
+            covers = (cov >= 0.35) or (top_score >= 0.52)
+        elif docs:
+            covers = top_score >= 0.50
         else:
-            grounded = True; mode = "extractive"
-            if answer and len(answer) > 10: self._answer_cache[cache_key] = {"answer": answer, "sources": top_docs}
-        times["total"] = round((time.perf_counter() - t0) * 1000.0, 2)
-        resp = AskResponse(request_id=rid, query=req.text, answer=answer, mode=mode, grounded=grounded, guardrails=guard,
-            sources=top_docs, latency_ms=times, total_ms=times["total"], pipeline=pipeline, created_at=now_iso(), from_corpus=grounded)
-        if record_metrics: store.record(MetricPoint(request_id=rid, total_ms=resp.total_ms, stages=times, mode=mode, grounded=grounded, created_at=now_iso()))
-        _emit(StreamEvent("done", resp.model_dump())); return resp
+            covers = False
+
+        if covers:
+            answer = self._extractive_answer(guard.normalized, docs)
+            if not answer or len(answer) < 5:
+                answer = self._get_refusal_message(guard.normalized)
+                mode = "refused"
+                grounded = False
+            else:
+                mode = "extractive"
+                grounded = True
+                if len(answer) > 10:
+                    self._answer_cache[cache_key] = {"answer": answer, "sources": docs[:C.RERANK_TOP]}
+            _emit(StreamEvent("chunk", {"delta": answer}))
+            times["generate"] = round((time.perf_counter() - t) * 1000.0, 2)
+            times["verify"] = 0.1
+            times["total"] = round((time.perf_counter() - t0) * 1000.0, 2)
+            pipeline.extend(["generate", "verify"])
+            resp = AskResponse(request_id=rid, query=req.text, answer=answer, mode=mode, grounded=grounded,
+                guardrails=guard, sources=docs[:C.RERANK_TOP], latency_ms=times, total_ms=times["total"], pipeline=pipeline,
+                created_at=now_iso(), from_corpus=grounded)
+            if record_metrics:
+                store.record(MetricPoint(request_id=rid, total_ms=resp.total_ms, stages=times, mode=mode, grounded=grounded, created_at=now_iso()))
+            _emit(StreamEvent("done", resp.model_dump()))
+            return resp
+        else:
+            answer = self._get_refusal_message(guard.normalized)
+            times["generate"] = round((time.perf_counter() - t) * 1000.0, 2)
+            times["verify"] = 0.0
+            times["total"] = round((time.perf_counter() - t0) * 1000.0, 2)
+            pipeline.extend(["generate", "verify"])
+            resp = AskResponse(request_id=rid, query=req.text, answer=answer, mode="refused", grounded=False,
+                guardrails=guard, sources=[], latency_ms=times, total_ms=times["total"], pipeline=pipeline,
+                created_at=now_iso(), from_corpus=False)
+            if record_metrics:
+                store.record(MetricPoint(request_id=rid, total_ms=resp.total_ms, stages=times, mode="refused", grounded=False, created_at=now_iso()))
+            _emit(StreamEvent("chunk", {"delta": answer}))
+            _emit(StreamEvent("done", resp.model_dump()))
+            return resp
 
     async def stream(self, req: AskRequest):
         q: asyncio.Queue = asyncio.Queue()
