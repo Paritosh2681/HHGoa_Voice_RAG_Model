@@ -42,20 +42,6 @@ class HybridIndex:
         self._vectors = vectors
         self._dims = dims
         self._faiss = None
-        self._tokenized = [self._tokenize(c.text) for c in chunks]
-        try:
-            from rank_bm25 import BM25Okapi
-            self._bm25 = BM25Okapi(self._tokenized)
-            # Inverted index: token -> doc indices. Lets search() score ONLY the
-            # docs that contain a query term instead of every corpus chunk —
-            # the whole-corpus get_scores() costs 150-275ms on 85k chunks.
-            self._inv: Optional[dict[str, list[int]]] = {}
-            for i, toks in enumerate(self._tokenized):
-                for tok in set(toks):
-                    self._inv.setdefault(tok, []).append(i)
-        except Exception:
-            self._bm25 = None
-            self._inv = None
 
     def __len__(self) -> int:
         if self._faiss is not None:
@@ -73,8 +59,9 @@ class HybridIndex:
                top_k: int = TOP_K) -> list[RetrievedDoc]:
         t0 = time.perf_counter()
 
-        # --- dense arm (FAISS C++ search or normalized inner product)
+        # --- dense arm (FAISS C++ search across 1.27M / 2.1M vectors)
         dense_scores: dict[int, float] = {}
+        candidate_indices: list[int] = []
         n = min(DENSE_TOP, len(self.chunks))
         if self._faiss is not None:
             try:
@@ -83,6 +70,7 @@ class HybridIndex:
                 for score, idx in zip(D[0], I[0]):
                     if 0 <= idx < len(self.chunks):
                         dense_scores[int(idx)] = float(score)
+                        candidate_indices.append(int(idx))
             except Exception:
                 pass
 
@@ -92,22 +80,22 @@ class HybridIndex:
             top_sorted = top_indices[np.argsort(-sims[top_indices])]
             for idx in top_sorted:
                 dense_scores[int(idx)] = float(sims[int(idx)])
+                candidate_indices.append(int(idx))
 
-        # --- sparse arm (BM25Okapi)
+        # --- fast sparse candidate lexical ranking (0.1ms)
         sparse_ranks: dict[int, int] = {}
-        if self._bm25 is not None:
-            tokens = self._tokenize(query)
-            if tokens:
-                try:
-                    scores = self._bm25.get_scores(tokens)
-                    n_b = min(BM25_TOP, len(self.chunks))
-                    top_indices = np.argpartition(-scores, n_b)[:n_b]
-                    top_sorted = top_indices[np.argsort(-scores[top_indices])]
-                    for pos, idx in enumerate(top_sorted):
-                        if scores[idx] > 0:
-                            sparse_ranks[int(idx)] = pos
-                except Exception:
-                    pass
+        tokens = self._tokenize(query)
+        if tokens and candidate_indices:
+            q_toks = set(tokens)
+            scored = []
+            for idx in candidate_indices[:50]:
+                doc_toks = set(self._tokenize(self.chunks[idx].text))
+                common = len(q_toks & doc_toks)
+                if common > 0:
+                    scored.append((common, idx))
+            scored.sort(reverse=True)
+            for pos, (_s, idx) in enumerate(scored[:BM25_TOP]):
+                sparse_ranks[idx] = pos
 
         # --- RRF fusion (ranking signal only)
         k = 60.0
@@ -175,7 +163,7 @@ class HybridIndex:
             return None
         try:
             payload = json.loads(chunks_file.read_text(encoding="utf-8"))
-            chunks = [Chunk(**p) for p in payload]
+            chunks = [Chunk.model_construct(**p) for p in payload]
             vectors = np.load(vec_file)
             meta = json.loads(meta_file.read_text(encoding="utf-8"))
             idx = cls()
@@ -184,6 +172,11 @@ class HybridIndex:
                 try:
                     import faiss
                     idx._faiss = faiss.read_index(str(dense_faiss_file))
+                    # Set nprobe for faster search on IVFFlat index
+                    import os as _os
+                    _nprobe = int(_os.getenv("HHGOA_IVF_NPROBE", "32"))
+                    if hasattr(idx._faiss, 'nprobe'):
+                        idx._faiss.nprobe = _nprobe
                 except Exception:
                     pass
             return idx
