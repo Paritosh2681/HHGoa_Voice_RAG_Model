@@ -3,6 +3,14 @@ import gradio as gr
 from backend.models import AskRequest
 from backend.main import _get_harness
 
+try:
+    import spaces
+    gpu_decorator = spaces.GPU
+except (ImportError, AttributeError):
+    def gpu_decorator(fn):
+        return fn
+
+@gpu_decorator
 def answer_query(message, history=None):
     if not message or not str(message).strip():
         return "Please enter a valid question."
