@@ -47,15 +47,18 @@ app.add_middleware(
 
 @app.on_event("startup")
 async def _on_startup():
-    import logging
+    import logging, threading
     _log = logging.getLogger("uvicorn")
-    _log.info("[startup] Loading index + harness (FAISS warmup)...")
-    await run_in_threadpool(_get_index)
-    await run_in_threadpool(_get_harness)
-    _log.info("[startup] Ready!")
+    try:
+        _log.info("[startup] Loading index + harness (FAISS warmup)...")
+        await run_in_threadpool(_get_harness)
+        _log.info("[startup] Ready!")
+    except Exception as e:
+        _log.error(f"[startup] Warmup error: {e}")
 
 _index = None
 _harness: Optional[PipelineHarness] = None
+_harness_lock = __import__('threading').Lock()
 
 
 def _get_index():
@@ -67,8 +70,11 @@ def _get_index():
 
 def _get_harness() -> PipelineHarness:
     global _harness
-    if _harness is None:
-        _harness = PipelineHarness(_get_index())
+    if _harness is not None:
+        return _harness
+    with _harness_lock:
+        if _harness is None:
+            _harness = PipelineHarness(_get_index())
     return _harness
 
 

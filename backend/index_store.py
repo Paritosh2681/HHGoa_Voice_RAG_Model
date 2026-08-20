@@ -44,8 +44,6 @@ class HybridIndex:
         self._faiss = None
 
     def __len__(self) -> int:
-        if self._faiss is not None:
-            return 2120000
         return len(self.chunks)
 
     # ---------------------------------------------------------------- helpers
@@ -162,9 +160,21 @@ class HybridIndex:
         if not (chunks_file.exists() and vec_file.exists() and meta_file.exists()):
             return None
         try:
-            payload = json.loads(chunks_file.read_text(encoding="utf-8"))
-            chunks = [Chunk.model_construct(**p) for p in payload]
-            vectors = np.load(vec_file)
+            import pickle
+            chunks_pkl = INDEX_DIR / "chunks.pkl"
+            if chunks_pkl.exists():
+                with open(chunks_pkl, "rb") as f:
+                    chunks = pickle.load(f)
+            else:
+                with open(chunks_file, "r", encoding="utf-8") as f:
+                    payload = json.load(f)
+                chunks = [Chunk.model_construct(**p) for p in payload]
+                try:
+                    with open(chunks_pkl, "wb") as f:
+                        pickle.dump(chunks, f, protocol=pickle.HIGHEST_PROTOCOL)
+                except Exception:
+                    pass
+            vectors = np.load(vec_file, mmap_mode="r")
             meta = json.loads(meta_file.read_text(encoding="utf-8"))
             idx = cls()
             idx.build(chunks, vectors, int(meta.get("dims", 0)))
