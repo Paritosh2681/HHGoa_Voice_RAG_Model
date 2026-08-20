@@ -55,6 +55,20 @@ class PipelineHarness:
         self._curated_faq: list[dict] = []
         self._curated_emb: Optional[np.ndarray] = None
         self._curated_facts: list[tuple[str, list[RetrievedDoc]]] = []
+        try:
+            self._emb.embed_one("warmup ONNX model weights")
+            # Pre-warm ONNX with multiple passes (first call is slow due to graph optimization)
+            for _ in range(5):
+                self._emb.embed_one("warmup")
+            # Pre-compute curated FAQ embeddings (avoids lazy build on first query)
+            self._build_curated_emb()
+            # Pre-warm FAISS index (first search is slow — inverted lists need CPU cache)
+            import numpy as _np
+            _dummy = _np.zeros((1, 384), dtype="float32")
+            if hasattr(self.index, '_faiss') and self.index._faiss is not None:
+                self.index._faiss.search(_dummy, 1)
+        except Exception:
+            pass
         self._init_knowledge_cache()
 
     def _init_knowledge_cache(self) -> None:
@@ -170,17 +184,44 @@ class PipelineHarness:
         li = {"mr": "CRITICAL: Answer STRICTLY in Marathi.", "hi": "CRITICAL: Answer STRICTLY in Hindi."}.get(qlang, "CRITICAL: Answer STRICTLY in English.")
         return [{"role": "system", "content": f"You are the voice assistant for HH Goa.\n{li}\nAnswer from your own knowledge. If unsure, say so honestly."}, {"role": "user", "content": f"QUESTION: {query}"}]
 
-    def _extractive_answer(self, query, docs):
+    def _extractive_answer(self, query: str, docs: list) -> str:
         qlang = detect_lang(query)
-        if not docs: return {"mr": "याबद्दल ज्ञानकोषात माहिती उपलब्ध नाही.", "hi": "यह जानकारी ज्ञानकोष में उपलब्ध नहीं है।"}.get(qlang, "I couldn't find relevant information.")
+        if not docs:
+            return {"mr": "याबद्दल ज्ञानकोषात माहिती उपलब्ध नाही.", "hi": "यह जानकारी ज्ञानकोष में उपलब्ध नहीं है।"}.get(qlang, "I couldn't find relevant information.")
+        
         lang_docs = [d for d in docs if detect_lang(d.text) == qlang] or docs
+        
+        # 1. Exact answers from selected / curated
         for d in lang_docs:
-            if d.is_selected or d.strategy in ("answer", "curated_knowledge", "metadata"):
-                t = d.text.strip()
-                if len(t) >= 15 and "translation" not in t.lower(): return t
-        for d in lang_docs:
-            t = d.text.strip()
-            if len(t) >= 15 and "translation" not in t.lower(): return t
+            if d.is_selected or d.strategy in ("answer", "curated_knowledge"):
+                clean = d.text.strip()
+                if len(clean) >= 15:
+                    return clean
+
+        # 2. Precise sentence extraction from top retrieved documents
+        q_tokens = _content_tokens(query)
+        scored_sentences = []
+        for d in lang_docs[:3]:
+            sentences = re.split(r"(?<=[.!?।\n])\s+", d.text)
+            for s in sentences:
+                s_clean = s.strip()
+                if len(s_clean) < 15 or len(s_clean) > 350:
+                    continue
+                s_tokens = _content_tokens(s_clean)
+                if not s_tokens:
+                    continue
+                overlap = len(q_tokens & s_tokens)
+                if overlap > 0:
+                    boost = 1.0
+                    low = s_clean.lower()
+                    if any(w in low for w in (" is ", " are ", " was ", " were ", " known as", " called", " named", " यानी ", " है ", " होते ")):
+                        boost += 0.4
+                    scored_sentences.append((overlap * boost, len(s_clean), s_clean))
+
+        if scored_sentences:
+            scored_sentences.sort(key=lambda x: (x[0], -abs(x[1] - 90)), reverse=True)
+            return scored_sentences[0][2]
+
         return lang_docs[0].text.strip() if lang_docs else ""
 
     def _get_refusal_message(self, query):
@@ -242,7 +283,7 @@ class PipelineHarness:
                     lex_q = _content_tokens(guard.normalized)
                     lex_top = _content_tokens(lex_docs[0].text)
                     lex_cov = 1.0 if (lex_q <= lex_top) else (len(lex_q & lex_top) / max(1, len(lex_q))) if lex_q else 1.0
-                    if top_lex_raw >= 0.85 and lex_cov >= 0.5:
+                    if top_lex_raw >= 0.50 and lex_cov >= 0.30:
                         lex_answer = self._extractive_answer(guard.normalized, lex_docs)
                         if lex_answer and len(lex_answer) > 10:
                             top_lex = [d for d in lex_docs[:C.RERANK_TOP] if d.score >= 0.01]
@@ -328,15 +369,23 @@ class PipelineHarness:
             top_tokens = _content_tokens(" ".join(d.text for d in docs[:2]))
             inter = len(q_content & top_tokens)
             cov = inter / max(1, len(q_content))
-            covers = (cov >= 0.35) or (top_score >= 0.52)
+            covers = (cov >= 0.5 and top_score >= 0.35) or top_score >= 0.60
         elif docs:
-            covers = top_score >= 0.50
+            covers = False
         else:
             covers = False
 
         if covers:
             answer = self._extractive_answer(guard.normalized, docs)
-            if not answer or len(answer) < 5:
+            a_tokens = _content_tokens(answer) if answer else set()
+            # Hard truth-check: the returned passage must actually talk about the
+            # query. A high cosine on a noisy corpus still returns "BMC
+            # Remedyforce" for "capital of Spain" — zero shared tokens -> refuse.
+            if q_content and a_tokens and not (q_content & a_tokens):
+                answer = self._get_refusal_message(guard.normalized)
+                mode = "refused"
+                grounded = False
+            elif not answer or len(answer) < 5:
                 answer = self._get_refusal_message(guard.normalized)
                 mode = "refused"
                 grounded = False
