@@ -412,10 +412,11 @@
     } else if (t === "done") {
       const ms = Math.round(performance.now() - start);
       const r = evt;
+      const ragMs = (r.total_ms !== undefined) ? r.total_ms : ms;
       if (r.mode === "refused") {
         if (r.answer) setAnswer(r.answer, true);
         else setAnswer(accumulatedAnswer, true);
-        setStatus("call refused — " + ((r.guardrails && r.guardrails.reject_code) || "blocked by guardroom"), true);
+        setStatus("call refused in " + ragMs + " ms — " + ((r.guardrails && r.guardrails.reject_code) || "not in corpus"), true);
         lane.classList.remove("is-active");
         maybeCrossedLine();
         if (isVoice) playVoice(r.answer || accumulatedAnswer);
@@ -426,11 +427,12 @@
 
       metaEl.textContent =
         "mode: " + r.mode + " · grounded: " + r.grounded +
-        " · total: " + (r.total_ms || ms) + " ms" +
+        " · RAG: " + ragMs + " ms" +
+        (isVoice ? " (voice STT + net: " + ms + " ms)" : "") +
         " · " + (r.pipeline || []).join(" → ");
       laneLamps.forEach((l) => markStage(l.dataset.stageLine, "done"));
       lane.classList.remove("is-active");
-      setStatus("patched through in " + ms + " ms");
+      setStatus("patched through in " + ragMs + " ms (RAG pipeline)" + (isVoice ? " · STT voice call" : ""));
       if (r.sources) renderSources(r.sources);
       maybeCrossedLine();
       if (isVoice) playVoice(accumulatedAnswer);
