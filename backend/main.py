@@ -36,15 +36,6 @@ FRONTEND_DIR = Path(__file__).resolve().parent.parent / "frontend"
 ASSETS_DIR = Path(__file__).resolve().parent.parent / "assets"
 
 
-async def _warmup() -> None:
-    """Pre-load and warm up embedding model, FAISS search, and BM25 index completely."""
-    h = _get_harness()
-    try:
-        req = AskRequest(text="warmup query index verification")
-        await h.run(req, record_metrics=False)
-    except Exception:
-        pass
-
 app = FastAPI(title="HH GOA Voice RAG", version="1.0.0")
 app.add_middleware(
     CORSMiddleware,
@@ -56,7 +47,12 @@ app.add_middleware(
 
 @app.on_event("startup")
 async def _on_startup():
-    await _warmup()
+    import logging
+    _log = logging.getLogger("uvicorn")
+    _log.info("[startup] Loading index + harness (FAISS warmup)...")
+    await run_in_threadpool(_get_index)
+    await run_in_threadpool(_get_harness)
+    _log.info("[startup] Ready!")
 
 _index = None
 _harness: Optional[PipelineHarness] = None
