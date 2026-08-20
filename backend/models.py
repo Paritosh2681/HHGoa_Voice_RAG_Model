@@ -20,11 +20,21 @@ class SttResult(BaseModel):
     latency_ms: float = 0.0
 
 
-class Chunk(BaseModel):
-    id: str
-    text: str
-    strategy: str = "unknown"
-    meta: dict[str, Any] = Field(default_factory=dict)
+class Chunk:
+    __slots__ = ("id", "text", "strategy", "meta")
+
+    def __init__(self, id: str = "", text: str = "", strategy: str = "unknown", meta: Optional[dict[str, Any]] = None) -> None:
+        self.id = id
+        self.text = text
+        self.strategy = strategy
+        self.meta = meta if meta is not None else {}
+
+    def model_dump(self) -> dict[str, Any]:
+        return {"id": self.id, "text": self.text, "strategy": self.strategy, "meta": self.meta}
+
+    @classmethod
+    def model_construct(cls, id: str = "", text: str = "", strategy: str = "unknown", meta: Optional[dict[str, Any]] = None, **kwargs) -> "Chunk":
+        return cls(id=id, text=text, strategy=strategy, meta=meta)
 
 
 class RetrievedDoc(BaseModel):

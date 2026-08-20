@@ -19,12 +19,15 @@ class EmbeddingProvider:
 
     def _ensure(self):
         if self._model is None:
+            import os
             from fastembed import TextEmbedding
-
-            self._model = TextEmbedding(
-                model_name=self.model_name,
-                cache_dir=None,  # default HF cache
-            )
+            os.environ["HF_HUB_DISABLE_SYMLINKS_WARNING"] = "1"
+            try:
+                os.environ["HF_HUB_OFFLINE"] = "1"
+                self._model = TextEmbedding(model_name=self.model_name)
+            except Exception:
+                os.environ.pop("HF_HUB_OFFLINE", None)
+                self._model = TextEmbedding(model_name=self.model_name)
         return self._model
 
     def _maybe_prefix(self, texts: list[str], is_query: bool) -> list[str]:

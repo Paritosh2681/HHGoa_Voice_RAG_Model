@@ -14,11 +14,11 @@ data/*.parquet
 data/raw/
 
 # Large index (too big for git — rebuild or download from Kaggle)
-data/index/chunks.json
-data/index/chunks.pkl
-data/index/dense.index
-data/index/sparse.pkl
-data/index/vectors.npy
+data/index/
+data/index_small/
+data/index_backup_*/
+data/*.parquet
+data/raw/
 
 # OS
 Thumbs.db
@@ -26,10 +26,17 @@ Thumbs.db
 
 # Misc runtime artifacts
 .freebuff/
+kaggle/
+colab/
+results/
+*.zip
+*.log
 
 # Temp scripts
 _*.py
+scratch_*.py
+download_*.py
+test_*.py
+search_*.py
 build_index.bat
-server.log
-server.err.log
-server_*.log
+run_full_build.bat
