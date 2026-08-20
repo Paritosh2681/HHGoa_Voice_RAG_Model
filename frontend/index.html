@@ -10,7 +10,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet" />
-<link rel="stylesheet" href="/styles.css?v=30" />
+<link rel="stylesheet" href="/styles.css?v=33" />
 </head>
 <body>
 
@@ -370,10 +370,20 @@
       </div>
 
       <div class="console__chips mono">
-        <button data-q="मेनहट्टन प्रोजेक्ट की सफलता का तात्कालिक प्रभाव क्या था?">मेनहट्टन?</button>
-        <button data-q="What is the capital of Australia?">AUSTRALIA?</button>
-        <button data-q="सौरमंडल का सबसे बड़ा ग्रह कौन सा है?">बड़ा ग्रह?</button>
-        <button data-q="अभी मौसम कैसा है?">मौसम? (refuse)</button>
+        <button class="chip" data-q="what is the best time to visit goa?">🏖️ GOA SEASON?</button>
+        <button class="chip" data-q="What are the famous forts in Goa?">🏰 AGUADA & CHAPORA?</button>
+        <button class="chip" data-q="What is the traditional food of Goa?">🍛 GOAN FISH CURRY?</button>
+        <button class="chip" data-q="What is the largest river in India?">🌊 LARGEST RIVER INDIA?</button>
+        <button class="chip" data-q="What is the capital of Australia?">🇦🇺 AUSTRALIA CAPITAL?</button>
+        <button class="chip" data-q="What does DNA stand for?">🧬 DNA MEANING?</button>
+        <button class="chip" data-q="What is a solar eclipse?">🌙 SOLAR ECLIPSE?</button>
+        <button class="chip chip--refuse" data-q="अभी मौसम कैसा है?">☁️ WEATHER? (REFUSAL)</button>
+      </div>
+
+      <!-- live retro audio waveform visualizer -->
+      <div class="visualizer-wrap" id="visualizerWrap">
+        <canvas id="visualizerCanvas" width="600" height="40"></canvas>
+        <span class="visualizer-label mono" id="visualizerLabel">STANDBY · READY</span>
       </div>
 
       <!-- the patch lane -->
@@ -398,6 +408,8 @@
             <span>OPERATOR 054 · MESSAGE SLIP</span>
             <div class="slip__controls">
               <button id="ttsPlayBtn" class="slip__voice-btn mono" type="button" title="Listen to Voice Answer">🔊 LISTEN VOICE</button>
+              <button id="copyAnswerBtn" class="slip__action-btn mono" type="button" title="Copy Answer Text">📋 COPY</button>
+              <button id="downloadSlipBtn" class="slip__action-btn mono" type="button" title="Download Query Slip">🎫 SAVE</button>
               <span class="slip__no">#—</span>
             </div>
           </div>
@@ -578,6 +590,6 @@
   </div>
 </footer>
 
-<script src="/app.js?v=32"></script>
+<script src="/app.js?v=33"></script>
 </body>
 </html>
