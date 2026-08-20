@@ -1,110 +1,632 @@
-# HH GOA Voice RAG
+# OPERATOR — Voice-Driven AI Research Interface
 
-Voice-enabled RAG pipeline for the **HH Goa 2026 shortlisting task 02**,
-built on `ai4bharat/MSMARCO-XI`. Ask in Hindi or English — by voice or text —
-and watch the retrieval wire light up under 200 ms.
+> **HH Goa 2026 — Task 2 Submission**
 
-Speech → STT (Sarvam `saaras:v3`, fallbacks: ElevenLabs / Groq Whisper) →
-multi-strategy chunking → hybrid retrieval (FAISS cosine × BM25 × RRF) →
-grounded answer generation (LLM via Groq, extractive fallback).
+OPERATOR is an interactive AI-powered research interface designed to make information discovery faster and more natural through **voice interaction, intelligent question answering, multilingual support, hybrid information retrieval, and transparent processing visualization**.
 
-## Features
+Instead of relying only on traditional text-based search, OPERATOR allows users to speak their questions and receive structured, understandable answers through an immersive research interface.
 
-- **Voice-first demo** — hold-to-talk in the browser (MediaRecorder → WebM), SSE streamed back live.
-- **Four chunking strategies** — `fixed_overlap`, `sentence`, `semantic`, `metadata` — fused at retrieval instead of betting on one naive split.
-- **Hybrid retrieval** — FAISS (local ONNX embeddings, L2-normalized) fused with BM25 via Reciprocal Rank Fusion, then metadata re-rank. Zero external vector DB.
-- **Guardrails** — unsafe-language (EN+HI), prompt-injection, off-topic gate (cosine ∨ lexical overlap), hallucination/grounding verification, graceful extractive fallback.
-- **Latency analytics** — P50 / P70 / P100 rolling percentiles per stage, surfaced in the UI.
-- **Structured harness** — Pydantic I/O, per-stage tracing, exponential-backoff retries, SSE event protocol.
+---
 
-## Quick start
+## 🚀 Key Features
+
+### 🎙️ Voice-Based Interaction
+
+* Speak directly to the system using a microphone.
+* Converts spoken queries into text.
+* Provides a conversational research experience.
+* Displays voice/activity visualization while processing.
+* Supports voice-driven interaction with the research pipeline.
+
+### 🧠 Intelligent Question Answering
+
+* Accepts natural-language questions.
+* Processes user queries through the backend AI pipeline.
+* Generates concise and understandable answers.
+* Designed specifically for research and information discovery.
+
+### 🔎 Hybrid Retrieval & RAG
+
+OPERATOR uses a retrieval-augmented approach to improve information discovery.
+
+The backend combines:
+
+* Knowledge-base retrieval
+* Semantic search
+* Hybrid retrieval
+* FAISS-based indexing
+* AI-powered answer generation
+
+This allows the system to retrieve relevant information before generating the final response.
+
+### 🌐 Multilingual Support
+
+* Supports queries and responses in multiple languages.
+* Enables more accessible interaction.
+* Designed to reduce language barriers in information discovery.
+* Suitable for English and Indian-language interaction.
+
+### 📊 Information & Data Visualization
+
+The interface presents information through:
+
+* Processing indicators
+* Audio waveform visualization
+* Research/data cards
+* Query history
+* Processing statistics
+* Structured answer sections
+* Retrieval and response information
+
+### ⚡ Optimized Processing
+
+The project includes performance optimization and benchmarking for the retrieval pipeline.
+
+The repository contains:
+
+* Retrieval benchmarks
+* Latency measurements
+* FAISS optimization experiments
+* Kaggle experimentation
+* Fast-path processing evaluation
+
+---
+
+## ⚡ Interactive Research Workflow
+
+The system follows this workflow:
+
+```text
+User Question
+      ↓
+Voice Input
+      ↓
+Speech-to-Text
+      ↓
+Query Processing
+      ↓
+Hybrid Information Retrieval
+      ↓
+RAG / AI Processing
+      ↓
+Answer Generation
+      ↓
+Text + Voice Response
+```
+
+---
+
+# 🎯 Problem Being Addressed
+
+Traditional information-search interfaces often require users to:
+
+* Type long queries
+* Navigate multiple pages
+* Read large amounts of information
+* Switch between different tools
+* Deal with language barriers
+* Manually identify relevant information
+
+This creates friction when users want quick and meaningful answers.
+
+**OPERATOR** aims to provide a more natural interaction model where users can **ask questions conversationally and receive meaningful information through a single interface**.
+
+---
+
+# 💡 Our Approach
+
+OPERATOR combines:
+
+**Voice Interface + AI Processing + Hybrid Retrieval + RAG + Multilingual Interaction + Visual Feedback**
+
+This creates an interface that behaves more like an intelligent research assistant rather than a conventional search page.
+
+The system is designed around the following principle:
+
+```text
+ASK
+ ↓
+UNDERSTAND
+ ↓
+RETRIEVE
+ ↓
+PROCESS
+ ↓
+ANSWER
+ ↓
+EXPLORE
+```
+
+---
+
+# 🖥️ Interface Highlights
+
+The website contains multiple sections designed around an immersive research-console experience:
+
+* Landing / introduction section
+* Interactive voice query interface
+* Voice activity visualization
+* Query input and processing area
+* AI-generated answer section
+* Multilingual response area
+* Research/data statistics
+* Processing visualization
+* Technical explanation section
+* Interactive query suggestions
+
+---
+
+# 🛠️ Technology Stack
+
+## Frontend
+
+* React.js
+* JavaScript
+* HTML5
+* CSS3
+* Web Audio / voice interaction APIs
+
+## Backend
+
+* Python
+* REST API
+* AI / NLP processing
+* Retrieval-Augmented Generation (RAG)
+* Hybrid retrieval pipeline
+
+## Information Retrieval
+
+* FAISS
+* Semantic search
+* Hybrid retrieval
+* Vector indexing
+* Knowledge-base search
+
+## AI / Processing
+
+* Speech-to-Text
+* Natural Language Processing
+* Large Language Model / AI API
+* Retrieval-Augmented Generation
+
+## Development & Deployment
+
+* Git
+* GitHub
+* VS Code
+* Render
+* Kaggle
+
+---
+
+# 📂 Project Structure
+
+```text
+OPERATOR/
+│
+├── assets/
+│   └── # Images, icons, UI assets and other static resources
+│
+├── backend/
+│   ├── # Voice processing pipeline
+│   ├── # Query processing
+│   ├── # RAG pipeline
+│   ├── # Hybrid retrieval
+│   └── # Backend API / AI services
+│
+├── data/
+│   ├── # Knowledge-base data
+│   ├── # Indexed data
+│   └── # Retrieval datasets
+│
+├── frontend/
+│   ├── src/
+│   │   ├── main.jsx
+│   │   ├── styles.css
+│   │   └── ...
+│   │
+│   ├── public/
+│   ├── package.json
+│   └── ...
+│
+├── kaggle/
+│   ├── # Kaggle notebooks
+│   └── # Model and retrieval experiments
+│
+├── results/
+│   ├── # Benchmark results
+│   ├── # Latency measurements
+│   ├── # Retrieval evaluation
+│   └── # Performance reports
+│
+├── .env.example
+├── .gitignore
+├── README.md
+├── render.yaml
+└── requirements.txt
+```
+
+---
+
+## 📁 Directory Overview
+
+| Directory / File   | Purpose                                                  |
+| ------------------ | -------------------------------------------------------- |
+| `assets/`          | Images, icons and other static project assets            |
+| `backend/`         | AI processing, voice pipeline, RAG and retrieval backend |
+| `data/`            | Knowledge-base and indexed retrieval data                |
+| `frontend/`        | React-based user interface                               |
+| `kaggle/`          | Kaggle notebooks, experiments and optimization work      |
+| `results/`         | Performance, latency and retrieval evaluation results    |
+| `.env.example`     | Example environment-variable configuration               |
+| `.gitignore`       | Files excluded from Git tracking                         |
+| `render.yaml`      | Render deployment configuration                          |
+| `requirements.txt` | Python backend dependencies                              |
+| `README.md`        | Project documentation                                    |
+
+---
+
+# 🏗️ System Architecture
+
+```text
+                         ┌──────────────────────┐
+                         │        USER          │
+                         │   Voice / Text Query │
+                         └──────────┬───────────┘
+                                    │
+                                    ▼
+                         ┌──────────────────────┐
+                         │       FRONTEND       │
+                         │   React Web Interface │
+                         └──────────┬───────────┘
+                                    │
+                                    ▼
+                         ┌──────────────────────┐
+                         │       BACKEND        │
+                         │ Voice + Query Pipeline│
+                         └──────────┬───────────┘
+                                    │
+                         ┌──────────┴───────────┐
+                         ▼                      ▼
+                ┌─────────────────┐    ┌─────────────────┐
+                │ Hybrid Retrieval│    │   AI / LLM      │
+                │  + FAISS / RAG  │    │    Processing    │
+                └────────┬────────┘    └────────┬────────┘
+                         │                      │
+                         └──────────┬───────────┘
+                                    ▼
+                         ┌──────────────────────┐
+                         │   Answer Generation  │
+                         └──────────┬───────────┘
+                                    │
+                         ┌──────────┴───────────┐
+                         ▼                      ▼
+                  ┌─────────────┐       ┌─────────────┐
+                  │ Text Answer │       │Voice Answer │
+                  └──────┬──────┘       └──────┬──────┘
+                         │                     │
+                         └──────────┬──────────┘
+                                    ▼
+                         ┌──────────────────────┐
+                         │      OPERATOR        │
+                         │    User Interface    │
+                         └──────────────────────┘
+```
+
+---
+
+# ⚙️ Installation & Setup
+
+## 1. Clone the Repository
 
 ```bash
-python -m venv .venv
-.venv\Scripts\activate            # Windows
+git clone YOUR_GITHUB_REPOSITORY_URL
+```
+
+## 2. Navigate to the Project
+
+```bash
+cd OPERATOR
+```
+
+## 3. Backend Setup
+
+Create a Python virtual environment:
+
+```bash
+python -m venv venv
+```
+
+Activate it on Windows:
+
+```bash
+venv\Scripts\activate
+```
+
+Install backend dependencies:
+
+```bash
 pip install -r requirements.txt
-
-python -m backend.main            # -> http://localhost:8000
 ```
 
-No API keys needed: the demo index boots from a curated MSMARCO-XI mirror
-corpus (~194 chunks) in under a second. To use the real dataset:
+## 4. Environment Variables
+
+Create your environment file:
 
 ```bash
-set HHGOA_USE_REAL=1
-python -m backend.ingest --force   # rebuild index from the HF stream
+cp .env.example .env
 ```
 
-## Enabling STT + LLM
+On Windows, you can manually copy `.env.example` to `.env`.
 
-Copy `.env.example` to `.env` and fill keys (also loadable as env vars):
+Add the required API keys and configuration values inside `.env`.
 
-| Variable            | Purpose                                     |
-| ------------------- | ------------------------------------------- |
-| `HHGOA_STT_PROVIDER`| `sarvam` (default), `elevenlabs`, or `groq` |
-| `SARVAM_API_KEY`    | Sarvam `saaras:v3` (voice → Hindi/English)  |
-| `ELEVENLABS_API_KEY`| ElevenLabs `scribe_v2`                       |
-| `GROQ_API_KEY`      | enables LLM generation + Groq Whisper STT    |
+> **Never commit real API keys or secrets to GitHub.**
 
-Without an LLM key the harness answers **extractively** (top passage) — the
-latency numbers below are measured in that mode, which is the strictest test
-of the retrieval core.
+## 5. Frontend Setup
 
-## API
+Navigate to the frontend:
 
-| Route                | Method | Purpose                                  |
-| -------------------- | ------ | ---------------------------------------- |
-| `/`                  | GET    | Frontend                                 |
-| `/api/health`        | GET    | Liveness + provider status               |
-| `/api/index-info`    | GET    | Index & chunking inventory               |
-| `/api/ask`           | POST   | JSON answer                              |
-| `/api/ask/stream`    | POST   | SSE answer (token stream + stage events) |
-| `/api/stt`           | POST   | audio → transcript                       |
-| `/api/voice/stream`  | POST   | audio → STT → RAG → SSE (end-to-end)     |
-| `/api/metrics`       | GET    | P50/P70/P100 summary                     |
-| `/api/metrics/reset` | POST   | clear rolling window                     |
-
-SSE events: `stage`, `guard_result`, `sources`, `answer_start`, `chunk`,
-`refuse`, `fallback`, `stt`, `done`, `error`.
-
-## Latency (measured, not a single best case)
-
-`python -m backend.benchmark --queries 20 --json results/latency.json`
-
-| Percentile | Time      |
-| ---------- | --------- |
-| P50        | 57.4 ms   |
-| P70        | 72.5 ms   |
-| P100       | 124.1 ms  |
-
-Per-stage P50: guard 0.2 · embed 19.7 · retrieve 2.0 · gate 0.2 ·
-generate ~0 (extractive) · verify 34.4 ms. A live P50/P70/P100 readout is
-baked into the latency section of the site.
-
-## Project layout
-
-```
-backend/
-  config.py       env-overridable config
-  chunking.py     four chunking strategies
-  embeddings.py   fastembed (ONNX) provider, L2-normalized
-  index_store.py  HybridIndex: FAISS + BM25 + RRF + metadata re-rank
-  ingest.py       corpus → chunks → vectors; cache to data/index
-  knowledge.py    curated MSMARCO-XI mirror corpus
-  stt.py          Sarvam / ElevenLabs / Groq providers
-  guardrails.py   safety, injection, off-topic, grounding checks
-  harness.py      orchestration, retries, SSE protocol
-  latency.py      MetricsStore (P50/P70/P100)
-  benchmark.py    latency benchmark CLI
-  download.py     optional real-dataset builder
-  main.py         FastAPI app
-frontend/         index.html · styles.css · app.js (HH GOA design)
-assets/           HH GOA brand assets (© HH Goa / 2:47 PM Studio)
-data/index/       cached chunks + vectors
+```bash
+cd frontend
 ```
 
-## Submission notes
+Install dependencies:
 
-- Videos for Instagram / X / LinkedIn with **#RAGInGoa**.
-- Google Form: https://forms.gle/MNvCjcv23Hn2Eeu58
-- HH GOA brand assets are © HH Goa / 2:47 PM Studio — used for this submission demo only.
+```bash
+npm install
+```
+
+Start the development server:
+
+```bash
+npm run dev
+```
+
+## 6. Open the Application
+
+Open the local URL displayed in the terminal, usually:
+
+```text
+http://localhost:5173
+```
+
+---
+
+# 🎤 How to Use
+
+1. Open the OPERATOR website.
+2. Allow microphone access when requested.
+3. Activate the voice interface.
+4. Ask a question naturally.
+5. The system converts the speech into a query.
+6. The backend processes the query.
+7. Relevant information is retrieved using the retrieval pipeline.
+8. The AI generates the final response.
+9. The answer is displayed in the interface.
+10. Users can interact with the response and explore the processing information.
+
+---
+
+# 🔥 What Makes OPERATOR Different?
+
+## 1. Voice-First Interaction
+
+The system is designed around natural voice interaction instead of treating voice as an additional feature.
+
+---
+
+## 2. Hybrid Retrieval
+
+Instead of depending entirely on an LLM, OPERATOR uses retrieval mechanisms to locate relevant information before generating an answer.
+
+This helps create a more research-oriented workflow.
+
+---
+
+## 3. RAG-Based Architecture
+
+The system follows a Retrieval-Augmented Generation approach:
+
+```text
+User Query
+    ↓
+Query Understanding
+    ↓
+Relevant Data Retrieval
+    ↓
+Context Formation
+    ↓
+AI Generation
+    ↓
+Final Answer
+```
+
+---
+
+## 4. Immersive Interface
+
+The visual design represents an AI research console rather than a conventional chatbot.
+
+The interface provides continuous visual feedback during processing.
+
+---
+
+## 5. Multilingual Accessibility
+
+Users can interact using different languages, making information access more inclusive.
+
+---
+
+## 6. Transparent Processing
+
+Instead of leaving users staring at a blank loading screen, the interface provides visual feedback about system activity and processing.
+
+---
+
+## 7. Performance-Oriented Design
+
+The project includes dedicated benchmarking and optimization experiments to improve retrieval and response performance.
+
+Performance analysis is maintained inside the `results/` directory.
+
+---
+
+# 🧪 Example Query
+
+### User
+
+> "What is the largest river in India?"
+
+### OPERATOR
+
+The system:
+
+```text
+Voice Input
+    ↓
+Speech Recognition
+    ↓
+Query Processing
+    ↓
+Information Retrieval
+    ↓
+AI Processing
+    ↓
+Answer
+```
+
+The resulting answer is presented through the interactive interface along with voice/activity visualization.
+
+---
+
+# 📊 Performance & Evaluation
+
+The repository contains dedicated resources for evaluating system performance.
+
+```text
+kaggle/
+   ↓
+Experiments & Optimization
+   ↓
+Retrieval / Model Evaluation
+   ↓
+results/
+   ↓
+Performance Reports
+```
+
+The evaluation can include:
+
+* Retrieval latency
+* Query processing time
+* FAISS performance
+* Retrieval quality
+* Fast-path performance
+* Different retrieval modes
+* System response latency
+
+---
+
+# 📈 Future Improvements
+
+The project can be extended with:
+
+* Real-time speech recognition
+* More accurate multilingual speech processing
+* Source citations for generated answers
+* Document/PDF research
+* Web-based research
+* Personal knowledge bases
+* Conversation history
+* AI-generated summaries
+* Voice-controlled navigation
+* Offline speech recognition
+* Advanced RAG architecture
+* User authentication
+* Mobile/PWA support
+* Streaming AI responses
+* Personalized research profiles
+
+---
+
+# 🔐 Privacy Considerations
+
+The application should follow privacy-first principles:
+
+* Microphone access should only be requested when required.
+* Voice data should not be permanently stored without user consent.
+* API keys should never be exposed in frontend source code.
+* Sensitive information should not be logged unnecessarily.
+* Environment variables should be stored securely.
+
+---
+
+# 🚀 Deployment
+
+The project includes a `render.yaml` configuration for deployment using **Render**.
+
+The deployment architecture can be represented as:
+
+```text
+                 GitHub Repository
+                        │
+                        ▼
+                 Render Deployment
+                        │
+              ┌─────────┴─────────┐
+              ▼                   ▼
+         Frontend              Backend
+              │                   │
+              └─────────┬─────────┘
+                        ▼
+                 OPERATOR System
+```
+
+---
+
+# 👥 Team
+
+**Hackathon:** - HH Goa 2026
+**Task:** - Task 2
+**Project:** - Voice-Driven AI Research Interface
+
+### Team Members
+
+* Member 1 — ABHISHEK JHA
+* Member 2 — PARITOSH GAIDHANI
+* Member 3 — ANURAJ CHAVAN
+
+
+---
+
+# 📜 License
+
+This project is developed for **HH Goa 2026**.
+
+Add an appropriate open-source license if you plan to publicly distribute the source code.
+
+---
+
+# ⭐ Project Vision
+
+> **"Ask naturally. Understand intelligently. Explore deeply."**
+
+OPERATOR aims to transform information discovery from a traditional:
+
+**Search → Click → Read**
+
+workflow into a more natural:
+
+**Speak → Understand → Retrieve → Process → Answer → Explore**
+
+experience.
+
+---
+
+## 🏆 HH Goa 2026 — Task 2
+
+Built with a focus on:
+
+**Innovation • Voice AI • RAG • Retrieval • Accessibility • Performance • User Experience**
+ #RAGInGoa.
