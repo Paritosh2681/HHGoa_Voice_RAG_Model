@@ -1,3 +1,13 @@
+---
+title: HH Goa Voice RAG Model
+emoji: 🎙️
+colorFrom: blue
+colorTo: indigo
+sdk: docker
+app_port: 8000
+pinned: false
+---
+
 # OPERATOR — Voice-Driven AI Research Interface
 
 > **HH Goa 2026 — Task 2 Submission**
