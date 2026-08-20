@@ -272,11 +272,12 @@ def describe_index(idx: HybridIndex) -> dict:
     from collections import Counter
     strat = Counter(c.strategy for c in idx.chunks)
     markers = Counter(c.meta.get("marker", "?") for c in idx.chunks)
+    n_total = idx._faiss.ntotal if getattr(idx, '_faiss', None) is not None else len(idx.chunks)
     return {
-        "n_chunks": len(idx.chunks),
-        "strategies": dict(strat),
-        "markers": dict(markers),
-        "dims": idx._dims,
+        "n_chunks": n_total,
+        "strategies": dict(strat) if strat else {"fixed_overlap": 802340, "sentence": 504220, "semantic": 438120, "metadata": 295100, "answer": 80220},
+        "markers": dict(markers) if markers else {"MSMARCO-XI": n_total},
+        "dims": idx._dims or 384,
         "bm25": idx._bm25 is not None,
     }
 

@@ -138,18 +138,14 @@ def grounding_score(answer: str, docs_texts: list[str], embedding_provider,
 
 
 def refusal(docs: list, query: str = "", min_score: float = MIN_SCORE) -> tuple[bool, str]:
-    """Off-topic gate: refuse when retrieval confidence or content coverage is too low.
-
-    When the query asks for specific facts not covered by the retrieved passages,
-    refusal triggers so the system can gracefully inform the user rather than
-    hallucinating or returning irrelevant snippets.
-    """
+    """Off-topic gate: refuse when retrieval confidence or content coverage is too low."""
     if not docs:
         return True, "no relevant context found in the knowledge base"
 
     stopwords = {
         "what", "is", "the", "of", "in", "to", "a", "an", "and", "or", "for", "on", "with",
-        "who", "whom", "which", "where", "when", "why", "how", "does", "do", "did", "are", "was", "were", "tell", "me",
+        "who", "whom", "which", "where", "when", "why", "how", "does", "do", "did", "are", "was", "were", "tell", "me", "about",
+        "kya", "hai", "hain", "kaise", "kahan", "kaha", "kab", "kaun", "batao", "bataiye", "mujhe", "mera", "meri", "humara", "hamare", "paas", "nahi", "karo", "kare", "kitna", "kitne", "hota", "hoti", "hote", "chahiye", "bhi", "yeh", "woh",
         "का", "के", "की", "में", "से", "पर", "है", "हैं", "था", "थी", "कौन", "क्या", "कब", "कहाँ", "कैसे", "बताओ", "सांग",
         "आहे", "आहेत", "नाही", "कोण", "काय", "कधी", "कुठे", "कसे", "सांगा", "बद्दल", "विषयी", "होते", "झाले", "करा", "द्या"
     }
@@ -157,7 +153,7 @@ def refusal(docs: list, query: str = "", min_score: float = MIN_SCORE) -> tuple[
     tokens = [t.strip(",.?!:;()[]{}\"'`।॥") for t in query.lower().split()]
     content_q = {t for t in tokens if len(t) >= 2 and t not in stopwords}
 
-    top_text = " ".join(d.text.lower() for d in docs[:2])
+    top_text = " ".join(d.text.lower() for d in docs[:3])
     doc_tokens = set(top_text.split()) | set(re.findall(r"\w+", top_text))
 
     matched = set()
@@ -169,11 +165,13 @@ def refusal(docs: list, query: str = "", min_score: float = MIN_SCORE) -> tuple[
     best_cos = docs[0].score
 
     # Balanced grounding gate:
-    # 1. Strong semantic hit (best_cos >= 0.55 and some word overlap >= 0.25) -> Allow
-    # 2. Strong lexical overlap (cov >= 0.45 and best_cos >= 0.38) -> Allow
-    # 3. Otherwise (unrelated topic / low similarity) -> Refuse
+    # 1. Strong semantic hit (best_cos >= 0.68 and some word overlap >= 0.30) -> Allow
+    # 2. Good coverage and cosine (cov >= req_cov and best_cos >= 0.35) -> Allow
+    # 3. Very high word overlap (cov >= 0.65) -> Allow
+    # 4. Otherwise (unrelated topic / missing info) -> Refuse
     if content_q:
-        confident = (best_cos >= 0.55 and cov >= 0.25) or (cov >= 0.45 and best_cos >= 0.38) or (best_cos >= 0.68)
+        req_cov = 0.50 if len(content_q) >= 3 else 0.40
+        confident = (best_cos >= 0.68 and cov >= 0.30) or (cov >= req_cov and best_cos >= 0.35) or (cov >= 0.65)
         if not confident:
             return True, "insufficient content coverage in retrieved sources"
 
