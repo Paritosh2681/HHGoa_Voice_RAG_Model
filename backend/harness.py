@@ -62,16 +62,26 @@ class PipelineHarness:
                 self._emb.embed_one("warmup")
             # Pre-compute curated FAQ embeddings (avoids lazy build on first query)
             self._build_curated_emb()
-            # Pre-warm FAISS index — run multiple real searches to load inverted lists into CPU cache
+            # Pre-warm FAISS — search with multiple diverse queries to load inverted lists
             import numpy as _np
-            _warmup_vec = self._emb.embed_one("warmup query capital india")
-            if _warmup_vec is not None and hasattr(self.index, '_faiss') and self.index._faiss is not None:
-                _q = _warmup_vec.reshape(1, -1).astype("float32")
-                _nprobe = min(32, getattr(self.index._faiss, 'nprobe', 16))
+            _warmup_queries = [
+                'capital india new delhi', 'goa river mandovi', 'shakespeare romeo juliet',
+                'population india billion', 'machine learning artificial intelligence',
+                'ozone layer ultraviolet', 'ram random access memory'
+            ]
+            if hasattr(self.index, '_faiss') and self.index._faiss is not None:
+                _nprobe = min(64, getattr(self.index._faiss, 'nprobe', 16))
                 self.index._faiss.nprobe = _nprobe
-                for _ in range(3):
-                    self.index._faiss.search(_q, min(10, len(self.index.chunks)))
-                print(f"[harness] FAISS warmup done (nprobe={_nprobe})", flush=True)
+                for _wu in _warmup_queries:
+                    _wv = self._emb.embed_one(_wu)
+                    if _wv is not None:
+                        _q = _wv.reshape(1, -1).astype("float32")
+                        self.index._faiss.search(_q, min(10, len(self.index.chunks)))
+            # Also warm the numpy vector fallback
+            if self.index._vectors is not None and self.index._vectors.shape[0] > 0:
+                _wv = self._emb.embed_one('warmup vector')
+                if _wv is not None:
+                    _ = self.index._vectors @ _wv
         except Exception:
             pass
         self._init_knowledge_cache()
