@@ -297,19 +297,23 @@ class PipelineHarness:
         times["gate"] = round((time.perf_counter() - t) * 1000.0, 2); pipeline.append("gate")
         _emit(StreamEvent("stage", {"stage": "gate", "ms": times["gate"]}))
         if should_refuse:
-            refusal_ans = self._get_refusal_message(guard.normalized); pipeline.append("refuse")
+            refusal_ans = self._get_refusal_message(guard.normalized)
+            pipeline.append("refuse")
             _emit(StreamEvent("refuse", {"reason": refusal_ans}))
-            _emit(StreamEvent("answer_start", {})); _emit(StreamEvent("chunk", {"delta": refusal_ans}))
-            additional_ans = None
-            if C.LLM_API_KEY:
-                try: additional_ans = await self._run_llm(self._build_knowledge_prompt(guard.normalized), on_tokens=lambda tok: _emit(StreamEvent("chunk", {"delta": tok})))
-                except Exception: additional_ans = None
-            times["generate"] = round((time.perf_counter() - t0) * 1000.0, 2)
-            times["total"] = round((time.perf_counter() - t0) * 1000.0, 2); pipeline.append("llm_additional")
-            resp = AskResponse(request_id=rid, query=req.text, answer=refusal_ans, mode="refused", grounded=False, guardrails=guard,
-                sources=[], latency_ms=times, total_ms=times["total"], pipeline=pipeline, created_at=now_iso(), additional_answer=additional_ans, from_corpus=False)
-            if record_metrics: store.record(MetricPoint(request_id=rid, total_ms=resp.total_ms, stages=times, mode="refused", grounded=False, created_at=now_iso()))
-            _emit(StreamEvent("done", resp.model_dump())); return resp
+            _emit(StreamEvent("answer_start", {}))
+            _emit(StreamEvent("chunk", {"delta": refusal_ans}))
+            times["generate"] = 0.1
+            times["verify"] = 0.0
+            times["total"] = round((time.perf_counter() - t0) * 1000.0, 2)
+            resp = AskResponse(
+                request_id=rid, query=req.text, answer=refusal_ans, mode="refused", grounded=False,
+                guardrails=guard, sources=[], latency_ms=times, total_ms=times["total"], pipeline=pipeline,
+                created_at=now_iso(), additional_answer=None, from_corpus=False
+            )
+            if record_metrics:
+                store.record(MetricPoint(request_id=rid, total_ms=resp.total_ms, stages=times, mode="refused", grounded=False, created_at=now_iso()))
+            _emit(StreamEvent("done", resp.model_dump()))
+            return resp
 
         # 5. generate (extractive)
         _emit(StreamEvent("answer_start", {})); t = time.perf_counter()
