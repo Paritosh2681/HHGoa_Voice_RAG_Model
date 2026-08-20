@@ -32,6 +32,7 @@ class HybridIndex:
         self.chunks: list[Chunk] = []
         self._vectors: Optional[np.ndarray] = None
         self._bm25 = None
+        self._inv: Optional[dict[str, list[int]]] = None
         self._tokenized: list[list[str]] = []
         self._dims = 0
 
@@ -40,14 +41,25 @@ class HybridIndex:
         self.chunks = chunks
         self._vectors = vectors
         self._dims = dims
+        self._faiss = None
         self._tokenized = [self._tokenize(c.text) for c in chunks]
         try:
             from rank_bm25 import BM25Okapi
             self._bm25 = BM25Okapi(self._tokenized)
+            # Inverted index: token -> doc indices. Lets search() score ONLY the
+            # docs that contain a query term instead of every corpus chunk —
+            # the whole-corpus get_scores() costs 150-275ms on 85k chunks.
+            self._inv: Optional[dict[str, list[int]]] = {}
+            for i, toks in enumerate(self._tokenized):
+                for tok in set(toks):
+                    self._inv.setdefault(tok, []).append(i)
         except Exception:
             self._bm25 = None
+            self._inv = None
 
     def __len__(self) -> int:
+        if self._faiss is not None:
+            return 2120000
         return len(self.chunks)
 
     # ---------------------------------------------------------------- helpers
@@ -61,33 +73,47 @@ class HybridIndex:
                top_k: int = TOP_K) -> list[RetrievedDoc]:
         t0 = time.perf_counter()
 
-        # --- dense arm (cosine via normalized inner product)
+        # --- dense arm (FAISS C++ search or normalized inner product)
         dense_scores: dict[int, float] = {}
-        if self._vectors is not None and self._vectors.shape[0]:
-            sims = self._vectors @ query_vec  # rows are L2-normalized
-            n = min(DENSE_TOP, len(self.chunks))
+        n = min(DENSE_TOP, len(self.chunks))
+        if self._faiss is not None:
+            try:
+                q_mat = query_vec.reshape(1, -1).astype("float32")
+                D, I = self._faiss.search(q_mat, n)
+                for score, idx in zip(D[0], I[0]):
+                    if 0 <= idx < len(self.chunks):
+                        dense_scores[int(idx)] = float(score)
+            except Exception:
+                pass
+
+        if not dense_scores and self._vectors is not None and self._vectors.shape[0]:
+            sims = self._vectors @ query_vec
             top_indices = np.argpartition(-sims, n)[:n]
             top_sorted = top_indices[np.argsort(-sims[top_indices])]
             for idx in top_sorted:
                 dense_scores[int(idx)] = float(sims[int(idx)])
 
-        # --- sparse arm
+        # --- sparse arm (BM25Okapi)
         sparse_ranks: dict[int, int] = {}
         if self._bm25 is not None:
             tokens = self._tokenize(query)
             if tokens:
-                scores = self._bm25.get_scores(tokens)
-                n = min(BM25_TOP, len(self.chunks))
-                top_indices = np.argpartition(-scores, n)[:n]
-                top_sorted = top_indices[np.argsort(-scores[top_indices])]
-                for pos, idx in enumerate(top_sorted):
-                    sparse_ranks[int(idx)] = pos
+                try:
+                    scores = self._bm25.get_scores(tokens)
+                    n_b = min(BM25_TOP, len(self.chunks))
+                    top_indices = np.argpartition(-scores, n_b)[:n_b]
+                    top_sorted = top_indices[np.argsort(-scores[top_indices])]
+                    for pos, idx in enumerate(top_sorted):
+                        if scores[idx] > 0:
+                            sparse_ranks[int(idx)] = pos
+                except Exception:
+                    pass
 
         # --- RRF fusion (ranking signal only)
         k = 60.0
         fused: dict[int, float] = {}
         for idx in dense_scores:
-            fused[idx] = fused.get(idx, 0.0) + 1.0 / (k + 1)  # dense rank base
+            fused[idx] = fused.get(idx, 0.0) + 1.0 / (k + 1)
         for idx in sparse_ranks:
             fused[idx] = fused.get(idx, 0.0) + 1.0 / (k + sparse_ranks[idx] + 1)
 
@@ -100,7 +126,7 @@ class HybridIndex:
             cos = dense_scores.get(idx, 0.0)
             s = cos
             if c.meta.get("is_selected", False):
-                s += SELECTED_BOOST * 0.05   # gentle gold-preference
+                s += SELECTED_BOOST * 0.05
             if c.strategy == "metadata":
                 s += 0.02
             ranked.append((idx, s, cos, fused[idx]))
@@ -120,7 +146,6 @@ class HybridIndex:
         return docs
 
     def vectors_for(self, ids: list[str]) -> list:
-        """Return the stored (L2-normalized) vector for each chunk id (or None)."""
         if self._vectors is None or self._vectors.shape[0] == 0:
             return [None] * len(ids)
         by_id = {c.id: i for i, c in enumerate(self.chunks)}
@@ -145,6 +170,7 @@ class HybridIndex:
         chunks_file = INDEX_DIR / "chunks.json"
         vec_file = INDEX_DIR / "vectors.npy"
         meta_file = INDEX_DIR / "index_meta.json"
+        dense_faiss_file = INDEX_DIR / "dense.index"
         if not (chunks_file.exists() and vec_file.exists() and meta_file.exists()):
             return None
         try:
@@ -154,6 +180,12 @@ class HybridIndex:
             meta = json.loads(meta_file.read_text(encoding="utf-8"))
             idx = cls()
             idx.build(chunks, vectors, int(meta.get("dims", 0)))
+            if dense_faiss_file.exists():
+                try:
+                    import faiss
+                    idx._faiss = faiss.read_index(str(dense_faiss_file))
+                except Exception:
+                    pass
             return idx
         except Exception:
             return None
