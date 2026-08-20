@@ -1,3 +1,5 @@
+gradio==4.44.1
+huggingface_hub==0.24.6
 fastapi>=0.115
 uvicorn[standard]>=0.30
 python-multipart>=0.0.9
