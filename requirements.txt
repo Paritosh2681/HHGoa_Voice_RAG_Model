@@ -11,3 +11,4 @@ huggingface_hub>=0.25
 fastembed>=0.4
 soundfile>=0.12
 imageio-ffmpeg>=0.4
+gradio>=4.0
