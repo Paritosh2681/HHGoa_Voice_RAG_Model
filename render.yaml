@@ -10,6 +10,10 @@ services:
       - key: HHGOA_HOST
         value: 0.0.0.0
       - key: HHGOA_PORT
-        value: 10000
+        value: "10000"
+      - key: HHGOA_INDEX_DIR
+        value: /opt/render/project/src/data/index_small
       - key: PYTHON_VERSION
         value: "3.12"
+      - key: PYTHONIOENCODING
+        value: utf-8
