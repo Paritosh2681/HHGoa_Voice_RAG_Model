@@ -37,5 +37,5 @@ with gr.Blocks(title="HH GOA Voice RAG", theme=gr.themes.Soft(primary_hue="blue"
     btn.click(fn=answer_query, inputs=inp, outputs=out)
     inp.submit(fn=answer_query, inputs=inp, outputs=out)
 
-# Launch unconditionally on port 7860 without experimental SSR worker
-demo.launch(server_name="0.0.0.0", server_port=7860, ssr=False)
+# Launch Gradio server
+demo.queue().launch(server_name="0.0.0.0", server_port=7860)
