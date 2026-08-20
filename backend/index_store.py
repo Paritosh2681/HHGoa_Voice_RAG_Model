@@ -66,16 +66,22 @@ class HybridIndex:
         if self._vectors is not None and self._vectors.shape[0]:
             sims = self._vectors @ query_vec  # rows are L2-normalized
             n = min(DENSE_TOP, len(self.chunks))
-            for idx in np.argsort(-sims)[:n]:
+            top_indices = np.argpartition(-sims, n)[:n]
+            top_sorted = top_indices[np.argsort(-sims[top_indices])]
+            for idx in top_sorted:
                 dense_scores[int(idx)] = float(sims[int(idx)])
 
         # --- sparse arm
         sparse_ranks: dict[int, int] = {}
         if self._bm25 is not None:
-            scores = self._bm25.get_scores(self._tokenize(query))
-            n = min(BM25_TOP, len(self.chunks))
-            for pos, idx in enumerate(np.argsort(-scores)[:n]):
-                sparse_ranks[int(idx)] = pos
+            tokens = self._tokenize(query)
+            if tokens:
+                scores = self._bm25.get_scores(tokens)
+                n = min(BM25_TOP, len(self.chunks))
+                top_indices = np.argpartition(-scores, n)[:n]
+                top_sorted = top_indices[np.argsort(-scores[top_indices])]
+                for pos, idx in enumerate(top_sorted):
+                    sparse_ranks[int(idx)] = pos
 
         # --- RRF fusion (ranking signal only)
         k = 60.0

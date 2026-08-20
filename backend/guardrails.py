@@ -168,8 +168,13 @@ def refusal(docs: list, query: str = "", min_score: float = MIN_SCORE) -> tuple[
     cov = len(matched) / max(1, len(content_q)) if content_q else 1.0
     best_cos = docs[0].score
 
-    # Strict grounding gate: if content words from query aren't strongly present, refuse
-    if content_q and (cov < 0.75 or best_cos < 0.70):
-        return True, "insufficient content coverage in retrieved sources"
+    # Balanced grounding gate:
+    # 1. Strong semantic hit (best_cos >= 0.55 and some word overlap >= 0.25) -> Allow
+    # 2. Strong lexical overlap (cov >= 0.45 and best_cos >= 0.38) -> Allow
+    # 3. Otherwise (unrelated topic / low similarity) -> Refuse
+    if content_q:
+        confident = (best_cos >= 0.55 and cov >= 0.25) or (cov >= 0.45 and best_cos >= 0.38) or (best_cos >= 0.68)
+        if not confident:
+            return True, "insufficient content coverage in retrieved sources"
 
     return False, ""
