@@ -291,6 +291,72 @@
     resetStage();
   }
 
+  /* ================= Retro Audio Visualizer ================= */
+  const visualizerWrap = $("#visualizerWrap");
+  const visualizerCanvas = $("#visualizerCanvas");
+  const visualizerLabel = $("#visualizerLabel");
+  let visualizerActive = false;
+  let animFrameId = null;
+
+  function initVisualizer() {
+    if (!visualizerCanvas) return;
+    const ctx = visualizerCanvas.getContext("2d");
+    const numBars = 48;
+
+    function renderFrame() {
+      const w = visualizerCanvas.width = visualizerCanvas.offsetWidth || 600;
+      const h = visualizerCanvas.height = 40;
+      ctx.clearRect(0, 0, w, h);
+
+      const barWidth = Math.floor(w / numBars) - 2;
+      const time = Date.now() * 0.006;
+
+      for (let i = 0; i < numBars; i++) {
+        let barHeight = 4;
+        if (visualizerActive) {
+          const wave1 = Math.sin(time + i * 0.3);
+          const wave2 = Math.cos(time * 1.5 + i * 0.5);
+          const rand = Math.random() * 0.4;
+          barHeight = Math.max(6, Math.floor((Math.abs(wave1 + wave2) / 2 + rand) * (h - 8)));
+        } else {
+          barHeight = 3 + Math.sin(time * 0.5 + i * 0.2) * 2;
+        }
+
+        const x = i * (barWidth + 2);
+        const y = Math.floor((h - barHeight) / 2);
+
+        const grad = ctx.createLinearGradient(0, y, 0, y + barHeight);
+        if (visualizerActive) {
+          grad.addColorStop(0, "#55f28c");
+          grad.addColorStop(0.6, "#dcb478");
+          grad.addColorStop(1, "#27ae60");
+        } else {
+          grad.addColorStop(0, "rgba(220, 180, 120, 0.35)");
+          grad.addColorStop(1, "rgba(14, 12, 8, 0.5)");
+        }
+
+        ctx.fillStyle = grad;
+        ctx.fillRect(x, y, barWidth, barHeight);
+      }
+
+      animFrameId = requestAnimationFrame(renderFrame);
+    }
+    renderFrame();
+  }
+
+  function setVisualizer(active, label) {
+    visualizerActive = active;
+    if (visualizerWrap) {
+      if (active) visualizerWrap.classList.add("is-active");
+      else visualizerWrap.classList.remove("is-active");
+    }
+    if (visualizerLabel && label) {
+      visualizerLabel.textContent = label;
+    }
+  }
+
+  initVisualizer();
+
   async function playVoice(text) {
     if (!text || !text.trim()) return;
     const plainText = text.replace(/<[^>]+>/g, "").replace(/[\*\#\_\[\]]/g, "").trim();
@@ -305,6 +371,7 @@
       ttsPlayBtn.classList.add("is-playing");
       ttsPlayBtn.textContent = "🔊 SPEAKING…";
     }
+    setVisualizer(true, "AUDIO TRANSMISSION · SPEAKING…");
 
     try {
       const resp = await fetch("/api/tts", {
@@ -321,6 +388,7 @@
           ttsPlayBtn.classList.remove("is-playing");
           ttsPlayBtn.textContent = "🔊 LISTEN VOICE";
         }
+        setVisualizer(false, "STANDBY · READY");
         currentAudio = null;
       };
       currentAudio.onerror = () => {
@@ -328,6 +396,7 @@
           ttsPlayBtn.classList.remove("is-playing");
           ttsPlayBtn.textContent = "🔊 LISTEN VOICE";
         }
+        setVisualizer(false, "STANDBY · READY");
         currentAudio = null;
       };
       await currentAudio.play();
@@ -337,6 +406,7 @@
         ttsPlayBtn.classList.remove("is-playing");
         ttsPlayBtn.textContent = "🔊 LISTEN VOICE";
       }
+      setVisualizer(false, "STANDBY · READY");
     }
   }
 
@@ -344,6 +414,65 @@
     ttsPlayBtn.addEventListener("click", () => {
       const txt = accumulatedAnswer || answerEl.textContent || "";
       playVoice(txt);
+    });
+  }
+
+  /* ================= copy answer & save slip actions ================= */
+  const copyBtn = $("#copyAnswerBtn");
+  if (copyBtn) {
+    copyBtn.addEventListener("click", async () => {
+      const txt = (accumulatedAnswer || answerEl.textContent || "").replace(/<[^>]+>/g, "").trim();
+      if (!txt) return;
+      try {
+        await navigator.clipboard.writeText(txt);
+        const prev = copyBtn.textContent;
+        copyBtn.textContent = "COPIED! ✓";
+        copyBtn.style.background = "#55f28c";
+        copyBtn.style.color = "#0b1a0e";
+        setTimeout(() => {
+          copyBtn.textContent = prev;
+          copyBtn.style.background = "";
+          copyBtn.style.color = "";
+        }, 2000);
+      } catch (err) {
+        console.error("Copy failed:", err);
+      }
+    });
+  }
+
+  const downloadBtn = $("#downloadSlipBtn");
+  if (downloadBtn) {
+    downloadBtn.addEventListener("click", () => {
+      const txt = (accumulatedAnswer || answerEl.textContent || "").replace(/<[^>]+>/g, "").trim();
+      const meta = (metaEl.textContent || "").trim();
+      const query = ($("#askInput").value || "").trim();
+      if (!txt) return;
+
+      const fileContent = 
+`==================================================
+HH GOA VOICE RAG — INQUIRY SLIP
+Slip ID: ${slipNo.textContent || "#054-001"}
+Date: ${new Date().toISOString()}
+==================================================
+
+QUESTION:
+${query || "Direct Voice / Text Inquiry"}
+
+ANSWER:
+${txt}
+
+TELEMETRY & METADATA:
+${meta}
+
+==================================================
+Generated by HH Goa Voice RAG (2.1M Index · Sub-50ms)
+`;
+      const blob = new Blob([fileContent], { type: "text/plain;charset=utf-8" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = `HHGoa_Inquiry_${Date.now()}.txt`;
+      a.click();
+      URL.revokeObjectURL(a.href);
     });
   }
 
@@ -512,8 +641,10 @@
       recording = true;
       talkBtn.classList.add("is-rec");
       micLabel("● REC");
+      setVisualizer(true, "RECORDING VOICE · LISTENING…");
       setStatus("listening … release to ask");
     } catch (e) {
+      setVisualizer(false, "STANDBY · READY");
       setStatus("mic blocked: " + e.message, true);
     }
   }
@@ -522,6 +653,7 @@
     recording = false;
     talkBtn.classList.remove("is-rec");
     micLabel("●");
+    setVisualizer(false, "STANDBY · READY");
     setStatus("processing audio …");
     try { recorder.stop(); } catch (_) {}
   }
