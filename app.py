@@ -33,4 +33,5 @@ with gr.Blocks(title="HH GOA Voice RAG", theme=gr.themes.Soft(primary_hue="blue"
     btn.click(fn=answer_query, inputs=inp, outputs=out)
     inp.submit(fn=answer_query, inputs=inp, outputs=out)
 
-demo.queue().launch()
+# Block main thread explicitly so HF Spaces container stays running 24/7
+demo.queue().launch(server_name="0.0.0.0", server_port=7860, prevent_thread_lock=False)
