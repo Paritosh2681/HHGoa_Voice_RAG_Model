@@ -13,9 +13,23 @@ __pycache__/
 data/*.parquet
 data/raw/
 
+# Large index (too big for git — rebuild or download from Kaggle)
+data/index/chunks.json
+data/index/chunks.pkl
+data/index/dense.index
+data/index/sparse.pkl
+data/index/vectors.npy
+
 # OS
 Thumbs.db
 .DS_Store
 
 # Misc runtime artifacts
 .freebuff/
+
+# Temp scripts
+_*.py
+build_index.bat
+server.log
+server.err.log
+server_*.log
