@@ -37,10 +37,11 @@ ASSETS_DIR = Path(__file__).resolve().parent.parent / "assets"
 
 
 async def _warmup() -> None:
-    """Pre-load index + embedding model so the first request is fast."""
+    """Pre-load and warm up embedding model, FAISS search, and BM25 index completely."""
     h = _get_harness()
     try:
-        await run_in_threadpool(h._emb.embed_one, "hello warmup")
+        req = AskRequest(text="warmup query index verification")
+        await h.run(req, record_metrics=False)
     except Exception:
         pass
 
