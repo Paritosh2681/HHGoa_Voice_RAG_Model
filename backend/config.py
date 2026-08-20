@@ -57,7 +57,7 @@ SEMANTIC_SIM_THRESHOLD = float(os.getenv("HHGOA_SEMANTIC_THRESHOLD", "0.42"))
 TOP_K = int(os.getenv("HHGOA_TOP_K", "6"))
 RERANK_TOP = int(os.getenv("HHGOA_RERANK_TOP", "4"))
 BM25_TOP = int(os.getenv("HHGOA_BM25_TOP", "20"))
-DENSE_TOP = int(os.getenv("HHGOA_DENSE_TOP", "20"))
+DENSE_TOP = int(os.getenv("HHGOA_DENSE_TOP", "10"))
 MIN_SCORE = float(os.getenv("HHGOA_MIN_SCORE", "0.5"))       # blended gate (cosine ∨ lexical): below → refuse
 SELECTED_BOOST = float(os.getenv("HHGOA_SELECTED_BOOST", "0.55"))
 
@@ -72,8 +72,8 @@ FAST_PATH_MIN_SCORE = float(os.getenv("HHGOA_FAST_PATH_MIN_SCORE", "0.55"))
 
 # Lexical fast preflight: BM25-only path before ONNX embed.
 LEX_FAST = os.getenv("HHGOA_LEX_FAST", "1") == "1"
-LEX_FAST_MIN_SCORE = float(os.getenv("HHGOA_LEX_FAST_MIN_SCORE", "5.0"))
-LEX_FAST_MIN_COVERAGE = float(os.getenv("HHGOA_LEX_FAST_MIN_COVERAGE", "0.15"))
+LEX_FAST_MIN_SCORE = float(os.getenv("HHGOA_LEX_FAST_MIN_SCORE", "2.0"))
+LEX_FAST_MIN_COVERAGE = float(os.getenv("HHGOA_LEX_FAST_MIN_COVERAGE", "0.30"))
 
 # --- STT ---------------------------------------------------------------------
 # Provider: sarvam | elevenlabs | groq | local
