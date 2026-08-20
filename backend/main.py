@@ -18,7 +18,7 @@ import json
 from pathlib import Path
 from typing import Optional
 
-from fastapi import FastAPI, File, HTTPException, Query, UploadFile
+from fastapi import FastAPI, File, HTTPException, Query, UploadFile, Response
 from fastapi.concurrency import run_in_threadpool
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, StreamingResponse
@@ -30,6 +30,7 @@ from .ingest import build_index, describe_index
 from .latency import store
 from .models import AskRequest, AskResponse, now_iso
 from .stt import provider_status, transcribe
+from .tts import synthesize_sarvam
 
 FRONTEND_DIR = Path(__file__).resolve().parent.parent / "frontend"
 ASSETS_DIR = Path(__file__).resolve().parent.parent / "assets"
@@ -180,6 +181,22 @@ async def voice_stream(file: UploadFile = File(...), strategy: Optional[str] = Q
 
     return StreamingResponse(gen(), media_type="text/event-stream",
                              headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"})
+
+
+class TTSRequest(BaseModel):
+    text: str
+    target_lang: Optional[str] = None
+
+
+@app.post("/api/tts")
+async def tts_endpoint(req: TTSRequest):
+    if not req.text or not req.text.strip():
+        raise HTTPException(400, "Text is empty")
+    try:
+        audio_bytes, mime = await synthesize_sarvam(req.text, req.target_lang)
+        return Response(content=audio_bytes, media_type=mime)
+    except Exception as exc:
+        raise HTTPException(500, f"TTS synthesis failed: {exc}")
 
 
 @app.get("/{tail:path}", include_in_schema=False)

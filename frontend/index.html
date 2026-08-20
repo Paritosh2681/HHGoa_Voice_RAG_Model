@@ -1,4 +1,4 @@
-﻿<!doctype html>
+<!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8" />
@@ -10,7 +10,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet" />
-<link rel="stylesheet" href="/styles.css?v=22" />
+<link rel="stylesheet" href="/styles.css?v=30" />
 </head>
 <body>
 
@@ -70,6 +70,11 @@
       <span class="exhead__word">OPERATOR</span>
       <span class="exhead__sub mono">054 · THE EXCHANGE</span>
     </a>
+    <nav class="exhead__nav mono">
+      <a class="exhead__link exhead__link--active" href="#console">🎙️ TALK / ASK</a>
+      <a class="exhead__link" href="#exchange">PIPELINE</a>
+      <a class="exhead__link" href="#telemetry">LATENCY</a>
+    </nav>
   </div>
 </header>
 
@@ -390,7 +395,11 @@
 
         <div class="slip">
           <div class="slip__head mono">
-            <span>OPERATOR 054 · MESSAGE SLIP</span><span class="slip__no">#—</span>
+            <span>OPERATOR 054 · MESSAGE SLIP</span>
+            <div class="slip__controls">
+              <button id="ttsPlayBtn" class="slip__voice-btn mono" type="button" title="Listen to Voice Answer">🔊 LISTEN VOICE</button>
+              <span class="slip__no">#—</span>
+            </div>
           </div>
           <div id="answer" class="slip__answer"><span class="answer__cursor"></span></div>
         </div>
@@ -569,6 +578,6 @@
   </div>
 </footer>
 
-<script src="/app.js?v=22"></script>
+<script src="/app.js?v=30"></script>
 </body>
 </html>

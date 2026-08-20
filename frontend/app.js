@@ -14,8 +14,9 @@
     if (!loader || loader.classList.contains("is-gone")) return;
     loader.classList.add("is-gone");
   }
-  window.addEventListener("load", () => setTimeout(hideLoader, 500));
-  setTimeout(hideLoader, 1400);
+  document.addEventListener("DOMContentLoaded", hideLoader);
+  window.addEventListener("load", hideLoader);
+  setTimeout(hideLoader, 50);
 
   /* ================= hero oscilloscope ================= */
   (function wave() {
@@ -236,12 +237,51 @@
       }
     });
   }
-  function setAnswer(text, append) {
-    const cursor = '<span class="answer__cursor"></span>';
-    answerEl.innerHTML = escapeHtml(text) + cursor;
-    if (append) answerEl.scrollTop = answerEl.scrollHeight;
+  let accumulatedAnswer = "";
+  const ttsPlayBtn = $("#ttsPlayBtn");
+  let currentAudio = null;
+
+  function formatMarkdown(text) {
+    if (!text) return "";
+    let s = String(text);
+    // Remove raw citation brackets e.g. [SOURCE 1]
+    s = s.replace(/\[(?:SOURCE\s*\d+|\d+)\]/gi, "");
+    // Bold: **text** or __text__
+    s = s.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
+    s = s.replace(/__(.*?)__/g, "<strong>$1</strong>");
+    // Italic: *text* or _text_
+    s = s.replace(/\*([^\*\n]+)\*/g, "<em>$1</em>");
+    // Headers: ### Header
+    s = s.replace(/^#{1,6}\s*(.*)$/gm, "<strong>$1</strong><br>");
+    // Bullets: - bullet
+    s = s.replace(/^\s*[\-\*]\s+(.*)$/gm, "• $1<br>");
+    // Newlines
+    s = s.replace(/\n\n+/g, "<br><br>");
+    s = s.replace(/\n/g, "<br>");
+    return s;
   }
+
+  function setAnswer(text, isFinal) {
+    accumulatedAnswer = text;
+    if (isFinal) {
+      answerEl.innerHTML = formatMarkdown(accumulatedAnswer);
+    } else {
+      const cursor = '<span class="answer__cursor"></span>';
+      answerEl.innerHTML = formatMarkdown(accumulatedAnswer) + cursor;
+    }
+    answerEl.scrollTop = answerEl.scrollHeight;
+  }
+
   function clearOut() {
+    accumulatedAnswer = "";
+    if (currentAudio) {
+      currentAudio.pause();
+      currentAudio = null;
+    }
+    if (ttsPlayBtn) {
+      ttsPlayBtn.classList.remove("is-playing");
+      ttsPlayBtn.textContent = "🔊 LISTEN VOICE";
+    }
     answerEl.innerHTML = '<span class="answer__cursor"></span>';
     metaEl.textContent = "—";
     sttEl.textContent = "—";
@@ -250,6 +290,63 @@
     slipNo.textContent = "#054-" + String(slipCount).padStart(3, "0");
     resetStage();
   }
+
+  async function playVoice(text) {
+    if (!text || !text.trim()) return;
+    const plainText = text.replace(/<[^>]+>/g, "").replace(/[\*\#\_\[\]]/g, "").trim();
+    if (!plainText) return;
+
+    if (currentAudio) {
+      currentAudio.pause();
+      currentAudio = null;
+    }
+
+    if (ttsPlayBtn) {
+      ttsPlayBtn.classList.add("is-playing");
+      ttsPlayBtn.textContent = "🔊 SPEAKING…";
+    }
+
+    try {
+      const resp = await fetch("/api/tts", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text: plainText }),
+      });
+      if (!resp.ok) throw new Error("TTS HTTP " + resp.status);
+      const blob = await resp.blob();
+      const url = URL.createObjectURL(blob);
+      currentAudio = new Audio(url);
+      currentAudio.onended = () => {
+        if (ttsPlayBtn) {
+          ttsPlayBtn.classList.remove("is-playing");
+          ttsPlayBtn.textContent = "🔊 LISTEN VOICE";
+        }
+        currentAudio = null;
+      };
+      currentAudio.onerror = () => {
+        if (ttsPlayBtn) {
+          ttsPlayBtn.classList.remove("is-playing");
+          ttsPlayBtn.textContent = "🔊 LISTEN VOICE";
+        }
+        currentAudio = null;
+      };
+      await currentAudio.play();
+    } catch (e) {
+      console.error("TTS playback error:", e);
+      if (ttsPlayBtn) {
+        ttsPlayBtn.classList.remove("is-playing");
+        ttsPlayBtn.textContent = "🔊 LISTEN VOICE";
+      }
+    }
+  }
+
+  if (ttsPlayBtn) {
+    ttsPlayBtn.addEventListener("click", () => {
+      const txt = accumulatedAnswer || answerEl.textContent || "";
+      playVoice(txt);
+    });
+  }
+
   function escapeHtml(s) {
     return String(s)
       .replace(/&/g, "&amp;").replace(/</g, "&lt;")
@@ -288,7 +385,7 @@
     await consumeStream("/api/ask/stream", { text }, (evt) => handleEvent(evt, start));
   }
 
-  function handleEvent(evt, start) {
+  function handleEvent(evt, start, isVoice) {
     const t = evt.type;
     if (t === "stage") {
       markStage(evt.stage, "active");
@@ -301,15 +398,10 @@
     } else if (t === "answer_start") {
       markStage("generate", "active");
     } else if (t === "chunk") {
-      if (answerEl.textContent === "" || answerEl.textContent === " ") setAnswer("");
-      answerEl.lastChild && answerEl.lastChild.nodeType === 3 && answerEl.removeChild(answerEl.lastChild);
-      const cur = answerEl.querySelector(".answer__cursor");
-      if (cur) {
-        const tn = document.createTextNode(evt.delta || "");
-        answerEl.insertBefore(tn, cur);
-      }
+      accumulatedAnswer += (evt.delta || "");
+      setAnswer(accumulatedAnswer, false);
     } else if (t === "refuse") {
-      setAnswer(evt.reason || "refused");
+      setAnswer(evt.reason || "refused", true);
       markStage("gate", "done");
       lane.classList.remove("is-active");
     } else if (t === "fallback") {
@@ -321,12 +413,17 @@
       const ms = Math.round(performance.now() - start);
       const r = evt;
       if (r.mode === "refused") {
-        if (r.answer && answerEl.textContent.trim() === "") setAnswer(r.answer);
-        setStatus("call refused — " + ((r.guardrails && r.guardrails.reject_code) || "blocked by guardroom"), r.mode === "refused");
+        if (r.answer) setAnswer(r.answer, true);
+        else setAnswer(accumulatedAnswer, true);
+        setStatus("call refused — " + ((r.guardrails && r.guardrails.reject_code) || "blocked by guardroom"), true);
         lane.classList.remove("is-active");
         maybeCrossedLine();
+        if (isVoice) playVoice(r.answer || accumulatedAnswer);
         return;
       }
+      if (r.answer && !accumulatedAnswer) setAnswer(r.answer, true);
+      else setAnswer(accumulatedAnswer, true);
+
       metaEl.textContent =
         "mode: " + r.mode + " · grounded: " + r.grounded +
         " · total: " + (r.total_ms || ms) + " ms" +
@@ -336,6 +433,7 @@
       setStatus("patched through in " + ms + " ms");
       if (r.sources) renderSources(r.sources);
       maybeCrossedLine();
+      if (isVoice) playVoice(accumulatedAnswer);
     } else if (t === "error") {
       setStatus("error: " + (evt.message || "unknown"), true);
     }
@@ -455,7 +553,7 @@
           buf = buf.slice(i + 2);
           for (const line of raw.split("\n")) {
             if (line.startsWith("data:")) {
-              try { handleEvent(JSON.parse(line.slice(5).trim()), start); } catch (_) {}
+              try { handleEvent(JSON.parse(line.slice(5).trim()), start, true); } catch (_) {}
             }
           }
         }

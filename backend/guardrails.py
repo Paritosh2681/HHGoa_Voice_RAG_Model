@@ -138,19 +138,38 @@ def grounding_score(answer: str, docs_texts: list[str], embedding_provider,
 
 
 def refusal(docs: list, query: str = "", min_score: float = MIN_SCORE) -> tuple[bool, str]:
-    """Off-topic gate: refuse when retrieval confidence is too low.
+    """Off-topic gate: refuse when retrieval confidence or content coverage is too low.
 
-    Confidence blends the dense cosine of the best hit with the lexical
-    overlap of the query against the top passages. Lexical overlap is the
-    decisive signal for languages where the embedding model is weak (Hindi).
+    When the query asks for specific facts not covered by the retrieved passages,
+    refusal triggers so the system can gracefully inform the user rather than
+    hallucinating or returning irrelevant snippets.
     """
     if not docs:
         return True, "no relevant context found in the knowledge base"
+
+    stopwords = {
+        "what", "is", "the", "of", "in", "to", "a", "an", "and", "or", "for", "on", "with",
+        "who", "whom", "which", "where", "when", "why", "how", "does", "do", "did", "are", "was", "were", "tell", "me",
+        "का", "के", "की", "में", "से", "पर", "है", "हैं", "था", "थी", "कौन", "क्या", "कब", "कहाँ", "कैसे", "बताओ", "सांग",
+        "आहे", "आहेत", "नाही", "कोण", "काय", "कधी", "कुठे", "कसे", "सांगा", "बद्दल", "विषयी", "होते", "झाले", "करा", "द्या"
+    }
+
+    tokens = [t.strip(",.?!:;()[]{}\"'`।॥") for t in query.lower().split()]
+    content_q = {t for t in tokens if len(t) >= 2 and t not in stopwords}
+
+    top_text = " ".join(d.text.lower() for d in docs[:2])
+    doc_tokens = set(top_text.split()) | set(re.findall(r"\w+", top_text))
+
+    matched = set()
+    for q in content_q:
+        if q in doc_tokens or any(q in d_tok for d_tok in doc_tokens):
+            matched.add(q)
+
+    cov = len(matched) / max(1, len(content_q)) if content_q else 1.0
     best_cos = docs[0].score
-    lex = lexical_overlap(query, " ".join(d.text for d in docs[:3]))
-    lex_scaled = min(lex * 2.0, 1.0)
-    relevance = max(best_cos, lex_scaled)
-    if relevance < min_score:
-        return True, (f"query appears out-of-domain for this knowledge base "
-                      f"(confidence {relevance:.2f} < {min_score:.2f})")
+
+    # Strict grounding gate: if content words from query aren't strongly present, refuse
+    if content_q and (cov < 0.75 or best_cos < 0.70):
+        return True, "insufficient content coverage in retrieved sources"
+
     return False, ""
