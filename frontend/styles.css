@@ -119,6 +119,19 @@ button { font-family: inherit; }
   font-size: 20px; letter-spacing: .1em; color: var(--cream);
 }
 .exhead__sub { font-size: 9.5px; letter-spacing: .22em; color: var(--dim); }
+.exhead__nav { display: flex; align-items: center; gap: 18px; }
+.exhead__link {
+  font-size: 11px; letter-spacing: .14em; color: var(--brass);
+  padding: 6px 12px; border: 1px dashed rgba(217,164,65,.35);
+  border-radius: 2px; transition: all .15s ease;
+}
+.exhead__link:hover {
+  background: var(--brass); color: var(--ink);
+  border-style: solid;
+}
+.exhead__link--active {
+  background: var(--red); color: #FFF; border-color: var(--red); border-style: solid;
+}
 @keyframes lampPulse { 0%,100% { opacity: 1; } 50% { opacity: .4; } }
 
 /* ---------------- buttons ---------------- */
@@ -665,17 +678,43 @@ button { font-family: inherit; }
   position: relative;
 }
 .slip__head {
-  display: flex; justify-content: space-between; gap: 12px;
+  display: flex; justify-content: space-between; align-items: center; gap: 12px;
   font-size: 9px; letter-spacing: .2em; color: rgba(14,12,8,.55);
   border-bottom: 1px dashed rgba(14,12,8,.28);
   padding-bottom: 9px; margin-bottom: 12px;
 }
-.slip__no { color: var(--red-ink); }
+.slip__controls {
+  display: flex; align-items: center; gap: 12px;
+}
+.slip__voice-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: var(--ink); color: var(--gold);
+  border: 1px solid var(--brass);
+  padding: 4px 10px; font-size: 10px; letter-spacing: .12em;
+  font-family: var(--mono); font-weight: 700;
+  cursor: pointer; border-radius: 2px;
+  transition: all .2s ease;
+}
+.slip__voice-btn:hover {
+  background: var(--brass); color: var(--ink);
+  box-shadow: 0 0 10px rgba(217,164,65,.5);
+}
+.slip__voice-btn.is-playing {
+  background: var(--red); color: #FFF; border-color: var(--red);
+  animation: lampPulse 1s infinite;
+}
+.slip__no { color: var(--red-ink); font-weight: 700; }
 .slip__answer {
   font-family: var(--display);
-  font-size: clamp(18px, 2.4vw, 24px); line-height: 1.5; font-weight: 350;
+  font-size: clamp(17px, 2.2vw, 22px); line-height: 1.55; font-weight: 400;
   min-height: 60px; color: var(--ink);
 }
+.slip__answer strong { font-weight: 700; color: #000; }
+.slip__answer em { font-style: italic; }
+.slip__answer p { margin-bottom: 8px; }
+.slip__answer p:last-child { margin-bottom: 0; }
+.slip__answer ul { margin: 8px 0 8px 20px; list-style: disc; font-size: 0.9em; }
+.slip__answer li { margin-bottom: 4px; }
 .answer__cursor {
   display: inline-block; width: 10px; height: 1.05em;
   background: var(--brass); vertical-align: -2px;

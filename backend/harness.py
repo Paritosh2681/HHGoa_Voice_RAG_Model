@@ -86,19 +86,26 @@ class PipelineHarness:
         for item in self._curated_faq:
             if q_norm and (q_norm == item["key_hi"] or (item["key_en"] and q_norm == item["key_en"])):
                 return item["answer"], item["docs"]
-        for item in self._curated_faq:
-            if item.get("ans_lang") != target_lang: continue
-            for k in (item.get("key_hi", ""), item.get("key_en", "")):
-                if k and (k in q_norm or q_norm in k) and len(k) >= 6: return item["answer"], item["docs"]
+
+        geo_entities = {"india", "भारत", "भारतातील", "भारतात", "goa", "गोवा", "गोव्यात", "australia", "ऑस्ट्रेलिया", "germany", "france", "russia", "china", "japan", "brazil", "america", "usa", "uk", "italy", "canada"}
+        q_geos = {t for t in q_content if t in geo_entities or any(g in t for g in ["india", "bharat", "goa", "germany", "france"])}
+
         best_match, best_overlap = None, 0.0
         for item in self._curated_faq:
             if item.get("ans_lang") != target_lang: continue
             for stored in (item["content_hi"], item["content_en"]):
                 if not stored: continue
+                stored_geos = {t for t in stored if t in geo_entities or any(g in t for g in ["india", "bharat", "goa", "germany", "france"])}
+                if q_geos and stored_geos and not (q_geos & stored_geos):
+                    continue
+                if stored_geos and not q_geos:
+                    continue
+                if q_geos and not stored_geos:
+                    continue
                 inter = len(q_content & stored)
                 if inter == 0: continue
                 overlap = inter / max(1, min(len(q_content), len(stored)))
-                if (inter >= 2 and overlap >= 0.35) or (inter >= 1 and len(q_content) <= 2 and overlap >= 0.75):
+                if (inter >= 2 and overlap >= 0.45) or (inter >= 1 and len(q_content) <= 2 and overlap >= 0.80):
                     if overlap > best_overlap: best_overlap = overlap; best_match = item
         return (best_match["answer"], best_match["docs"]) if best_match else None
 
