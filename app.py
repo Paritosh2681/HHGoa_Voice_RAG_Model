@@ -3,6 +3,7 @@
 Mounts the HH GOA Voice RAG pipeline with both the sleek Web UI
 and Gradio Voice/Text Interface.
 """
+import time
 import gradio as gr
 from backend.models import AskRequest
 from backend.main import _get_harness
@@ -38,4 +39,12 @@ with gr.Blocks(title="HH GOA Voice RAG", theme=gr.themes.Soft(primary_hue="blue"
     inp.submit(fn=answer_query, inputs=inp, outputs=out)
 
 # Launch Gradio server
-demo.queue().launch(server_name="0.0.0.0", server_port=7860)
+demo.queue()
+demo.launch(server_name="0.0.0.0", server_port=7860)
+
+# Keep process alive indefinitely in container
+try:
+    while True:
+        time.sleep(3600)
+except (KeyboardInterrupt, SystemExit):
+    pass
