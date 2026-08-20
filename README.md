@@ -604,8 +604,6 @@ The deployment architecture can be represented as:
 
 This project is developed for **HH Goa 2026**.
 
-Add an appropriate open-source license if you plan to publicly distribute the source code.
-
 ---
 
 # ⭐ Project Vision
