@@ -23,11 +23,10 @@ class EmbeddingProvider:
             from fastembed import TextEmbedding
             os.environ["HF_HUB_DISABLE_SYMLINKS_WARNING"] = "1"
             try:
-                os.environ["HF_HUB_OFFLINE"] = "1"
                 self._model = TextEmbedding(model_name=self.model_name)
-            except Exception:
-                os.environ.pop("HF_HUB_OFFLINE", None)
-                self._model = TextEmbedding(model_name=self.model_name)
+            except Exception as e:
+                print(f"[embeddings] Warning: failed to load {self.model_name} ({e}), falling back to dummy provider")
+                self._model = DummyEmbeddingProvider()
         return self._model
 
     def _maybe_prefix(self, texts: list[str], is_query: bool) -> list[str]:

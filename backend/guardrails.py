@@ -147,7 +147,8 @@ def refusal(docs: list, query: str = "", min_score: float = MIN_SCORE) -> tuple[
         "who", "whom", "which", "where", "when", "why", "how", "does", "do", "did", "are", "was", "were", "tell", "me", "about",
         "kya", "hai", "hain", "kaise", "kahan", "kaha", "kab", "kaun", "batao", "bataiye", "mujhe", "mera", "meri", "humara", "hamare", "paas", "nahi", "karo", "kare", "kitna", "kitne", "hota", "hoti", "hote", "chahiye", "bhi", "yeh", "woh",
         "का", "के", "की", "में", "से", "पर", "है", "हैं", "था", "थी", "कौन", "क्या", "कब", "कहाँ", "कैसे", "बताओ", "सांग",
-        "आहे", "आहेत", "नाही", "कोण", "काय", "कधी", "कुठे", "कसे", "सांगा", "बद्दल", "विषयी", "होते", "झाले", "करा", "द्या"
+        "आहे", "आहेत", "नाही", "कोण", "काय", "कधी", "कुठे", "कसे", "सांगा", "बद्दल", "विषयी", "होते", "झाले", "करा", "द्या",
+        "म्हणजे", "कशाला", "कशास", "कोणते", "कोणती", "कोणता", "यांचे", "यांची", "यांना", "मधील", "येथील"
     }
 
     tokens = [t.strip(",.?!:;()[]{}\"'`।॥") for t in query.lower().split()]

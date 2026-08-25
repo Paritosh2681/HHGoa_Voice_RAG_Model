@@ -68,7 +68,7 @@ class AskResponse(BaseModel):
     request_id: str
     query: str
     answer: str
-    mode: Literal["llm", "extractive", "refused", "quantum_cache", "lex_fast"]
+    mode: str = "llm"
     grounded: bool
     guardrails: GuardResult
     sources: list[RetrievedDoc] = Field(default_factory=list)

@@ -49,12 +49,17 @@ app.add_middleware(
 async def _on_startup():
     import logging, threading
     _log = logging.getLogger("uvicorn")
-    try:
-        _log.info("[startup] Loading index + harness (FAISS warmup)...")
-        await run_in_threadpool(_get_harness)
-        _log.info("[startup] Ready!")
-    except Exception as e:
-        _log.error(f"[startup] Warmup error: {e}")
+    
+    def _bg_warmup():
+        try:
+            _log.info("[startup-bg] Preloading index + harness (FAISS warmup)...")
+            _get_harness()
+            _log.info("[startup-bg] Ready!")
+        except Exception as e:
+            _log.error(f"[startup-bg] Warmup error: {e}")
+            
+    threading.Thread(target=_bg_warmup, daemon=True).start()
+    _log.info("[startup] Server listening immediately; background warmup started.")
 
 _index = None
 _harness: Optional[PipelineHarness] = None
@@ -95,12 +100,13 @@ async def asset(name: str):
 # ------------------------------------------------------------------ api
 @app.get("/api/health")
 async def health():
-    idx = _get_index()
+    ready = _index is not None
     return {
         "status": "ok",
+        "ready": ready,
         "service": "HH GOA Voice RAG",
         "stt": provider_status(),
-        "index": describe_index(idx),
+        "index": describe_index(_index) if ready else {"status": "warming_up", "n_chunks": 0},
         "version": "1.0.0",
     }
 

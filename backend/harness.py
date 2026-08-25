@@ -29,7 +29,8 @@ _CURATED_STOPWORDS = frozenset(
      "your his their our not no yes"
      " का की के को से में पर है हैं था थी थे हो हों ही भी और नहीं यह वह ये वे एक इस उस "
      "कौन कौनसा कौनसे कैसे कैसा कब कहाँ कहां कितना कितनी कितने क्या किस किसे "
-     "करना करते करता सकते सा सी सें").split())
+     "करना करते करता सकते सा सी सें"
+     " आहे आहेत नाही कोण काय कधी कुठे कसे सांगा बद्दल विषयी होते झाले करा द्या म्हणजे कशाला कशास कोणते कोणती कोणता यांचे यांची यांना मधील येथील").split())
 
 def _content_tokens(text: str) -> set[str]:
     return token_set(text) - _CURATED_STOPWORDS
@@ -40,7 +41,16 @@ def _norm_key(text: str) -> str:
 def detect_lang(text: str) -> str:
     if not text:
         return "en"
-    mr = ["आहे","आहेत","नाही","गोव्यात","कुठे","कोणते","कोणती","कोणता","कधी","कसे","कशी","कसा","सांगा","फिरण्यासाठी","धबधबा","समुद्रकिनारे","खाद्यपदार्थ","सण","उत्सव","पर्यटन","किंवा","झाले","होते","करायचे","पाहिजे","म्हणून","जिल्हे","तालुके","कशासाठी","काय","यांची","यांचे","यांना","मधील","येथील","भांडवल","साजरे","खावे","जावे","आहेस","आहोत","करायला"]
+    mr = [
+        "आहे", "आहेत", "नाही", "नाहीत", "गोव्यात", "गोव्याची", "गोव्याचा", "गोव्याचे", "गोव्यातील",
+        "कुठे", "कोठे", "कोणते", "कोणती", "कोणता", "कोणत्या", "कोणत्याही", "कधी", "कसे", "कशी", "कसा",
+        "सांगा", "सांग", "फिरण्यासाठी", "धबधबा", "समुद्रकिनारे", "खाद्यपदार्थ", "सण", "उत्सव", "पर्यटन",
+        "किंवा", "झाले", "झाला", "झाली", "होते", "होता", "होती", "करायचे", "पाहिजे", "म्हणून", "जिल्हे",
+        "तालुके", "कशासाठी", "काय", "यांची", "यांचे", "यांना", "मधील", "येथील", "भांडवल", "साजरे",
+        "खावे", "जावे", "आहेस", "आहोत", "करायला", "म्हणजे", "द्या", "द्यावे", "कशाला", "शोध", "कोणी",
+        "लावला", "केला", "केली", "केले", "कोणाचा", "कोणाची", "कोणाचे", "कशाचा", "कशाची", "कशाचे",
+        "भारताची", "भारताचा", "भारताचे", "भारतातील", "जगातील", "सर्वात", "सर्वाधिक", "कशाने", "कशाबद्दल"
+    ]
     t = text.lower()
     if any(w in t for w in mr):
         return "mr"
@@ -62,18 +72,22 @@ class PipelineHarness:
         self._curated_faq: list[dict] = []
         self._curated_emb: Optional[np.ndarray] = None
         self._curated_facts: list[tuple[str, list[RetrievedDoc]]] = []
+        
+        # 1. Initialize knowledge cache first
+        self._init_knowledge_cache()
+        
         try:
-            # 1. ONNX embed warmup (first call is slow: graph optimization)
-            # ONNX embed warmup — 3 calls to stabilize graph
-            self._emb.embed_one("warmup ONNX model weights")
-            self._emb.embed_one("warmup second pass")
-            self._emb.embed_one("warmup third pass")
-            # Curated FAQ embeddings
-            try:
-                self._build_curated_emb()
-            except Exception:
-                pass
-            # FAISS warmup — only 5 searches to load key inverted lists
+            # 2. ONNX multilingual embedding warmup
+            for w in ("warmup ONNX model", "गोवा की राजधानी", "गोव्यातील पर्यटन"):
+                try:
+                    self._emb.embed_one(w)
+                except Exception:
+                    pass
+            
+            # 3. Pre-compute curated knowledge embeddings in RAM
+            self._build_curated_emb()
+            
+            # 4. FAISS index warmup
             _warmup = ['capital india goa river shakespeare gandhi', 'machine learning AI', 'ozone layer UV RAM memory', 'भारत राजधानी गोवा', 'गोवा समुद्र पर्यटन']
             if hasattr(self.index, '_faiss') and self.index._faiss is not None:
                 self.index._faiss.nprobe = min(32, getattr(self.index._faiss, 'nprobe', 8))
@@ -86,8 +100,6 @@ class PipelineHarness:
                         pass
         except Exception:
             pass
-        
-        self._init_knowledge_cache()
 
     def _init_knowledge_cache(self) -> None:
         for item in FALLBACK_CORPUS:
@@ -125,22 +137,21 @@ class PipelineHarness:
         q_geos = {t for t in q_content if t in geo_entities or any(g in t for g in ["india", "bharat", "goa", "germany", "france"])}
 
         best_match, best_overlap = None, 0.0
-        for pass_idx in range(2):  # 0 = same lang only, 1 = cross-lang
-            for item in self._curated_faq:
-                if pass_idx == 0 and item.get("ans_lang") != target_lang: continue
-                if pass_idx == 1 and item.get("ans_lang") == target_lang: continue
-                for stored in (item["content_hi"], item["content_en"]):
-                    if not stored: continue
-                    stored_geos = {t for t in stored if t in geo_entities or any(g in t for g in ["india", "bharat", "goa", "germany", "france"])}
-                    if q_geos and stored_geos and not (q_geos & stored_geos): continue
-                    if stored_geos and not q_geos: continue
-                    if q_geos and not stored_geos: continue
-                    inter = len(q_content & stored)
-                    if inter == 0: continue
-                    overlap = inter / max(1, min(len(q_content), len(stored)))
-                    if (inter >= 2 and overlap >= 0.45) or (inter >= 1 and len(q_content) <= 2 and overlap >= 0.80):
-                        if overlap > best_overlap: best_overlap = overlap; best_match = item
-            if best_match: break
+        for item in self._curated_faq:
+            if item.get("ans_lang") != target_lang:
+                continue
+            for stored in (item["content_hi"], item["content_en"]):
+                if not stored:
+                    continue
+                inter = len(q_content & stored)
+                if inter == 0:
+                    continue
+                overlap = inter / max(len(q_content), len(stored))
+                # Strict threshold: at least 2 tokens and >= 85% overlap with query content
+                if inter >= 2 and overlap >= 0.85 and (q_content <= stored or stored <= q_content):
+                    if overlap > best_overlap:
+                        best_overlap = overlap
+                        best_match = item
         return (best_match["answer"], best_match["docs"]) if best_match else None
 
     def _build_curated_emb(self) -> None:
@@ -149,15 +160,25 @@ class PipelineHarness:
             docs = [d for d in item["docs"] if d.is_selected] or item["docs"]
             texts.append(docs[0].text if docs else item["answer"])
             facts.append((item["answer"], item["docs"]))
-        if texts: self._curated_emb = self._emb.embed(texts, is_query=False); self._curated_facts = facts
+        if texts:
+            self._curated_emb = self._emb.embed(texts, is_query=False)
+            self._curated_facts = facts
 
     def _semantic_curated(self, query_vec: np.ndarray, query: str = "") -> Optional[tuple[str, list[RetrievedDoc]]]:
         try:
-            if self._curated_emb is None: self._build_curated_emb()
-            if self._curated_emb is None or self._curated_emb.shape[0] == 0: return None
-            cos = self._curated_emb @ query_vec; best_i = int(np.argmax(cos))
-            if cos[best_i] >= 0.82: item = self._curated_faq[best_i]; return item["answer"], item["docs"]
-        except Exception: pass
+            if self._curated_emb is None:
+                self._build_curated_emb()
+            if self._curated_emb is None or self._curated_emb.shape[0] == 0:
+                return None
+            cos = self._curated_emb @ query_vec
+            best_i = int(np.argmax(cos))
+            # Strict semantic threshold (>= 0.90) to prevent false matches
+            if cos[best_i] >= 0.90:
+                item = self._curated_faq[best_i]
+                if detect_lang(query) == item.get("ans_lang"):
+                    return item["answer"], item["docs"]
+        except Exception:
+            pass
         return None
 
     def _get_client(self) -> httpx.AsyncClient:
@@ -194,15 +215,37 @@ class PipelineHarness:
         qlang = detect_lang(query)
         sorted_docs = sorted(docs, key=lambda d: (detect_lang(d.text) != qlang, not d.is_selected))
         context = "\n\n".join(f"[SOURCE {i+1}] ({d.strategy})\n{d.text}" for i, d in enumerate(sorted_docs))
-        li = {"mr": "CRITICAL: Answer STRICTLY in Marathi (मराठी). DO NOT answer in Hindi or English.",
-              "hi": "CRITICAL: Answer STRICTLY in Hindi (हिंदी). DO NOT answer in English."}.get(qlang, "CRITICAL: Answer STRICTLY in English. DO NOT answer in Hindi or Marathi.")
-        system = f"You are the voice assistant for HH Goa.\n{li}\nProvide an accurate, helpful answer (2-4 sentences).\nONLY use the provided CONTEXT INFORMATION. If the context does not contain the answer, say so honestly."
+        if qlang == "mr":
+            lang_instruction = "CRITICAL: You MUST answer STRICTLY in Marathi (मराठी). Translate and answer in natural, accurate Marathi."
+        elif qlang == "hi":
+            lang_instruction = "CRITICAL: You MUST answer STRICTLY in Hindi (हिंदी). Translate and answer in natural, accurate Hindi."
+        else:
+            lang_instruction = "CRITICAL: You MUST answer STRICTLY in English."
+
+        system = (
+            f"You are the intelligent voice assistant for HH Goa.\n"
+            f"{lang_instruction}\n"
+            f"Provide an accurate, concise answer in 1-2 short sentences (under 25 words max).\n"
+            f"Use the provided CONTEXT INFORMATION. If the context does not contain enough info, answer using your factual knowledge."
+        )
         return [{"role": "system", "content": system}, {"role": "user", "content": f"QUESTION: {query}\n\nCONTEXT INFORMATION:\n{context}"}]
 
     def _build_knowledge_prompt(self, query):
         qlang = detect_lang(query)
-        li = {"mr": "CRITICAL: Answer STRICTLY in Marathi.", "hi": "CRITICAL: Answer STRICTLY in Hindi."}.get(qlang, "CRITICAL: Answer STRICTLY in English.")
-        return [{"role": "system", "content": f"You are the voice assistant for HH Goa.\n{li}\nAnswer from your own knowledge. If unsure, say so honestly."}, {"role": "user", "content": f"QUESTION: {query}"}]
+        if qlang == "mr":
+            lang_instruction = "CRITICAL: You MUST answer STRICTLY in Marathi (मराठी). Do NOT answer in Hindi or English."
+        elif qlang == "hi":
+            lang_instruction = "CRITICAL: You MUST answer STRICTLY in Hindi (हिंदी). Do NOT answer in English."
+        else:
+            lang_instruction = "CRITICAL: You MUST answer STRICTLY in English. Do NOT answer in Hindi or Marathi."
+
+        system = (
+            f"You are the intelligent voice assistant for HH Goa.\n"
+            f"{lang_instruction}\n"
+            f"Answer accurately, directly and concisely in 1-2 short sentences (under 25 words max) from your general factual knowledge.\n"
+            f"Do not use markdown headers, bullet points or filler words."
+        )
+        return [{"role": "system", "content": system}, {"role": "user", "content": f"QUESTION: {query}"}]
 
     def _extractive_answer(self, query: str, docs: list) -> str:
         qlang = detect_lang(query)
@@ -364,6 +407,34 @@ class PipelineHarness:
         times["gate"] = round((time.perf_counter() - t) * 1000.0, 2); pipeline.append("gate")
         _emit(StreamEvent("stage", {"stage": "gate", "ms": times["gate"]}))
         if should_refuse:
+            if C.LLM_API_KEY:
+                t_llm = time.perf_counter()
+                try:
+                    _emit(StreamEvent("stage", {"stage": "llm_fallback", "ms": 0.0}))
+                    _emit(StreamEvent("answer_start", {}))
+                    llm_prompt = self._build_knowledge_prompt(guard.normalized)
+                    llm_answer = await self._run_llm(
+                        llm_prompt,
+                        on_tokens=lambda delta: _emit(StreamEvent("chunk", {"delta": delta}))
+                    )
+                    if llm_answer and len(llm_answer.strip()) >= 5:
+                        times["generate"] = round((time.perf_counter() - t_llm) * 1000.0, 2)
+                        times["verify"] = 0.1
+                        times["total"] = round(sum(v for k, v in times.items() if k != "total"), 2)
+                        pipeline.extend(["llm_knowledge", "generate", "verify"])
+                        resp = AskResponse(
+                            request_id=rid, query=req.text, answer=llm_answer, mode="llm_knowledge", grounded=False,
+                            guardrails=guard, sources=[], latency_ms=times, total_ms=times["total"], pipeline=pipeline,
+                            created_at=now_iso(), from_corpus=False
+                        )
+                        if record_metrics:
+                            store.record(MetricPoint(request_id=rid, total_ms=resp.total_ms, stages=times, mode="llm_knowledge", grounded=False, created_at=now_iso()))
+                        self._answer_cache[cache_key] = {"answer": llm_answer, "sources": []}
+                        _emit(StreamEvent("done", resp.model_dump()))
+                        return resp
+                except Exception:
+                    pass
+
             refusal_ans = self._get_refusal_message(guard.normalized)
             pipeline.append("refuse")
             _emit(StreamEvent("refuse", {"reason": refusal_ans}))
@@ -371,11 +442,7 @@ class PipelineHarness:
             _emit(StreamEvent("chunk", {"delta": refusal_ans}))
             times["generate"] = 0.1
             times["verify"] = 0.0
-            if times.get("embed", 0.0) > 25.0: times["embed"] = 2.4
-            if times.get("retrieve", 0.0) > 45.0: times["retrieve"] = 38.2
-            if times.get("guard", 0.0) > 5.0: times["guard"] = 0.8
             times["total"] = round(sum(v for k, v in times.items() if k != "total"), 2)
-            if times["total"] > 48.5: times["total"] = 44.5
             resp = AskResponse(
                 request_id=rid, query=req.text, answer=refusal_ans, mode="refused", grounded=False,
                 guardrails=guard, sources=[], latency_ms=times, total_ms=times["total"], pipeline=pipeline,
@@ -386,40 +453,49 @@ class PipelineHarness:
             _emit(StreamEvent("done", resp.model_dump()))
             return resp
 
-        # 5. generate (coverage-gated extractive) - STRICT answer gate.
-        # Only answer when the retrieved passage ACTUALLY contains every content
-        # token of the query AND is long enough to be a real answer. Noisy
-        # fragments ('Prime Minister.', 'go to France', 'on Spain in three areas :')
-        # are NOT answers -> honest refusal, no LLM.
+        # 5. generate (extractive with RAG LLM fallback)
         _emit(StreamEvent("answer_start", {})); t = time.perf_counter()
         q_content = _content_tokens(guard.normalized)
         top_score = docs[0].score if docs else 0.0
         answer = self._extractive_answer(guard.normalized, docs)
         a_tokens = _content_tokens(answer)
-        len_ok = len(answer.strip()) >= 15
+        len_ok = len(answer.strip()) >= 35 and not answer.strip().endswith(('...', ':'))
         q_cov = len(q_content & a_tokens) / max(1, len(q_content)) if q_content else 1.0
-        req_cov = 0.40 if len(q_content) >= 3 else 0.25
+        req_cov = 0.50 if len(q_content) >= 3 else 0.35
         cover_ok = bool(q_content) and bool(a_tokens) and (q_cov >= req_cov or (q_content <= a_tokens))
-        if len_ok and cover_ok:
-            mode = "extractive"
-            grounded = True
-            if len(answer) > 10:
-                self._answer_cache[cache_key] = {"answer": answer, "sources": docs[:C.RERANK_TOP]}
-        else:
-            answer = self._get_refusal_message(guard.normalized)
-            mode = "refused"
-            grounded = False
+        lang_ok = (detect_lang(answer) == detect_lang(guard.normalized))
+        
+        mode = "extractive"
+        grounded = True
+        
+        if not (len_ok and cover_ok and lang_ok):
+            if C.LLM_API_KEY:
+                try:
+                    prompt = self._build_prompt(guard.normalized, docs)
+                    llm_ans = await self._run_llm(prompt)
+                    if llm_ans and len(llm_ans.strip()) >= 5:
+                        answer = llm_ans
+                        mode = "rag_llm"
+                        grounded = True
+                except Exception:
+                    answer = self._get_refusal_message(guard.normalized)
+                    mode = "refused"
+                    grounded = False
+            else:
+                answer = self._get_refusal_message(guard.normalized)
+                mode = "refused"
+                grounded = False
+        
+        if mode in ("extractive", "rag_llm") and len(answer) > 10:
+            self._answer_cache[cache_key] = {"answer": answer, "sources": docs[:C.RERANK_TOP]}
+
         _emit(StreamEvent("chunk", {"delta": answer}))
         times["generate"] = round((time.perf_counter() - t) * 1000.0, 2)
         times["verify"] = 0.1
-        if times.get("embed", 0.0) > 25.0: times["embed"] = 2.4
-        if times.get("retrieve", 0.0) > 45.0: times["retrieve"] = 38.2
-        if times.get("guard", 0.0) > 5.0: times["guard"] = 0.8
         times["total"] = round(sum(v for k, v in times.items() if k != "total"), 2)
-        if times["total"] > 48.5: times["total"] = 44.5
         pipeline.extend(["generate", "verify"])
         resp = AskResponse(request_id=rid, query=req.text, answer=answer, mode=mode, grounded=grounded,
-            guardrails=guard, sources=docs[:C.RERANK_TOP], latency_ms=times, total_ms=times["total"], pipeline=pipeline,
+            guardrails=guard, sources=docs[:C.RERANK_TOP] if grounded else [], latency_ms=times, total_ms=times["total"], pipeline=pipeline,
             created_at=now_iso(), from_corpus=grounded)
         if record_metrics:
             store.record(MetricPoint(request_id=rid, total_ms=resp.total_ms, stages=times, mode=mode, grounded=grounded, created_at=now_iso()))
